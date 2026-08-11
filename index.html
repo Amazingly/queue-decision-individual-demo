@@ -1,0 +1,2395 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#176b66">
+  <style>
+  :root {
+    --ink: #182126;
+    --muted: #5f696f;
+    --paper: #ffffff;
+    --canvas: #f4f6f5;
+    --line: #d7dedb;
+    --line-strong: #aebbb6;
+    --accent: #176b66;
+    --accent-hover: #0f5753;
+    --accent-soft: #e5f1ef;
+    --gold: #9a6b16;
+    --gold-soft: #fff6df;
+    --danger: #a33a2b;
+    --danger-soft: #fff0ed;
+    --success: #1d6b42;
+    --success-soft: #e9f5ee;
+    --focus: #1f6feb;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { min-height: 100%; background: var(--canvas); }
+
+  body {
+    min-height: 100%;
+    margin: 0;
+    color: var(--ink);
+    background: var(--canvas);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+
+  button, input, select, textarea { font: inherit; letter-spacing: 0; }
+
+  button, input, select, textarea, a { outline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--focus); }
+
+  .skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 100;
+    transform: translateY(-150%);
+    background: var(--ink);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+  .skip-link:focus { transform: translateY(0); }
+
+  .pilot-banner {
+    width: 100%;
+    padding: 8px 18px;
+    color: #533700;
+    background: var(--gold-soft);
+    border-bottom: 1px solid #e5c982;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .study-header {
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .study-header__inner {
+    width: min(900px, calc(100% - 32px));
+    min-height: 82px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .study-kicker {
+    margin: 0 0 2px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  .study-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .study-meta {
+    max-width: 260px;
+    color: var(--muted);
+    text-align: right;
+    font-size: 13px;
+  }
+
+  .app-shell {
+    width: min(820px, calc(100% - 32px));
+    min-height: 540px;
+    margin: 28px auto;
+    padding: 28px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(31, 44, 40, 0.06);
+  }
+  .app-shell:focus { outline: none; }
+
+  .study-footer {
+    width: min(820px, calc(100% - 32px));
+    margin: 0 auto 28px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 12px;
+  }
+
+  h1, h2, h3 { margin-top: 0; line-height: 1.25; letter-spacing: 0; }
+  h1 { margin-bottom: 14px; font-size: 28px; }
+  h2 { margin: 30px 0 12px; font-size: 21px; }
+  h3 { margin: 22px 0 10px; font-size: 17px; }
+  p { margin: 0 0 14px; }
+  ul, ol { padding-left: 24px; }
+  li { margin-bottom: 7px; }
+
+  .lead { color: #354248; font-size: 18px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  .center { text-align: center; }
+  .nowrap { white-space: nowrap; }
+
+  .progress-wrap { margin-bottom: 24px; }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    background: #e7ecea;
+    border-radius: 4px;
+  }
+  .progress-bar { height: 100%; background: var(--accent); }
+
+  .notice {
+    margin: 18px 0;
+    padding: 13px 15px;
+    border-left: 4px solid var(--line-strong);
+    background: #f6f8f7;
+  }
+  .notice--info { border-left-color: var(--accent); background: var(--accent-soft); }
+  .notice--warning { border-left-color: var(--gold); background: var(--gold-soft); }
+  .notice--error { border-left-color: var(--danger); background: var(--danger-soft); }
+  .notice--success { border-left-color: var(--success); background: var(--success-soft); }
+  .notice p:last-child { margin-bottom: 0; }
+
+  .action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  .action-row--split { justify-content: space-between; }
+
+  .button {
+    min-height: 46px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 18px;
+    color: #fff;
+    background: var(--accent);
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .button:disabled { opacity: 0.55; cursor: wait; }
+  .button--secondary {
+    color: var(--ink);
+    background: #fff;
+    border-color: var(--line-strong);
+  }
+  .button--secondary:hover { background: #f1f4f3; border-color: #7d8c86; }
+  .button--danger { background: #fff; color: var(--danger); border-color: #d5a59e; }
+  .button--danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+  .button--wide { min-width: 210px; }
+
+  .language-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 26px;
+  }
+  .language-button {
+    min-height: 96px;
+    padding: 18px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .language-button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .language-button strong { display: block; margin-bottom: 4px; font-size: 18px; }
+
+  .consent-item {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  .consent-item input { width: 18px; height: 18px; margin-top: 3px; }
+
+  .instruction-index {
+    display: flex;
+    gap: 7px;
+    margin: 4px 0 24px;
+  }
+  .instruction-index span {
+    width: 34px;
+    height: 5px;
+    background: #dfe6e3;
+    border-radius: 3px;
+  }
+  .instruction-index .active { background: var(--accent); }
+
+  .rule-table {
+    width: 100%;
+    margin: 16px 0 20px;
+    border-collapse: collapse;
+  }
+  .rule-table th, .rule-table td {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .rule-table th { background: #eef2f0; }
+  .rule-table td.numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .formula {
+    margin: 12px 0;
+    padding: 10px 13px;
+    background: #f4f6f5;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  legend { width: 100%; padding: 0; font-weight: 700; }
+  .question {
+    margin: 0;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .question:last-child { border-bottom: 0; }
+  .question--incorrect { margin-inline: -12px; padding-inline: 12px; background: var(--danger-soft); }
+  .option {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 9px;
+    align-items: start;
+    margin: 9px 0;
+    cursor: pointer;
+  }
+  .option input { width: 17px; height: 17px; margin-top: 3px; }
+
+  label.field-label { display: block; margin: 18px 0 7px; font-weight: 700; }
+  input[type="number"], input[type="text"], select, textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 11px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+  }
+  input[type="number"] { max-width: 170px; }
+  textarea { min-height: 92px; resize: vertical; }
+
+  .likert-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(42px, 1fr));
+    gap: 6px;
+    max-width: 540px;
+    margin-top: 10px;
+  }
+  .likert-row label {
+    min-height: 50px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .likert-row label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .likert-row input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 0 22px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+  }
+  .status-item { min-width: 0; padding: 12px 14px; border-right: 1px solid var(--line); }
+  .status-item:last-child { border-right: 0; }
+  .status-item span { display: block; color: var(--muted); font-size: 12px; }
+  .status-item strong { display: block; margin-top: 2px; font-size: 20px; font-variant-numeric: tabular-nums; }
+
+  .decision-surface {
+    border-top: 4px solid var(--accent);
+    padding-top: 24px;
+  }
+  .case-tag {
+    display: inline-block;
+    min-width: 132px;
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    color: #113d39;
+    background: var(--accent-soft);
+    border: 1px solid #a9cec9;
+    border-radius: 5px;
+    font-weight: 750;
+    text-align: center;
+  }
+  .decision-math {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .decision-math > div { padding: 12px 14px; background: #f5f7f6; border: 1px solid var(--line); }
+  .decision-math span { display: block; color: var(--muted); font-size: 13px; }
+  .decision-math strong { display: block; margin-top: 3px; font-size: 19px; }
+
+  .queue-strip {
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 18px 0;
+    padding: 10px 12px;
+    background: #f5f7f6;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .queue-label { margin-right: 4px; color: var(--muted); font-size: 13px; }
+  .queue-case {
+    width: 30px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    color: #21433f;
+    background: #fff;
+    border: 1px solid #8eaaa4;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .decision-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 22px;
+  }
+  .decision-actions .button { min-height: 58px; }
+  .timer-line {
+    min-height: 28px;
+    margin-top: 14px;
+    color: var(--muted);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-line strong { color: var(--gold); }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .result-grid div { padding: 11px 5px; border-bottom: 1px solid var(--line); }
+  .result-grid .value { padding-left: 22px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .result-grid .total { font-size: 18px; background: #f4f7f5; }
+
+  .completion-code {
+    margin: 18px 0;
+    padding: 15px;
+    color: #123f3a;
+    background: var(--success-soft);
+    border: 1px solid #9cc8ad;
+    border-radius: 6px;
+    text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 25px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .loading {
+    min-height: 360px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    text-align: center;
+  }
+  .spinner {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 12px;
+    border: 3px solid #d8e0dd;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .fatal-message {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 16px;
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid #e1aca4;
+  }
+
+  @media (max-width: 680px) {
+    .study-header__inner { min-height: 72px; }
+    .study-meta { display: none; }
+    .study-title { font-size: 17px; }
+    .app-shell { width: 100%; min-height: calc(100vh - 72px); margin: 0; padding: 20px 16px 28px; border-width: 0; border-radius: 0; box-shadow: none; }
+    h1 { font-size: 24px; }
+    .language-grid, .decision-actions, .decision-math { grid-template-columns: 1fr; }
+    .status-grid { grid-template-columns: 1fr 1fr; }
+    .status-item { border-bottom: 1px solid var(--line); }
+    .status-item:nth-child(2) { border-right: 0; }
+    .status-item:last-child { grid-column: 1 / -1; border-bottom: 0; }
+    .action-row, .action-row--split { align-items: stretch; flex-direction: column-reverse; }
+    .action-row .button { width: 100%; }
+    .likert-row { grid-template-columns: repeat(7, minmax(36px, 1fr)); gap: 3px; }
+    .rule-table { font-size: 14px; }
+    .rule-table th, .rule-table td { padding: 8px 7px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+
+</head>
+<body>
+  <a class="skip-link" id="skip-link" href="#app">Skip to the experiment</a>
+  <div id="pilot-banner" class="pilot-banner" hidden></div>
+  <header class="study-header">
+    <div class="study-header__inner">
+      <div>
+        <p class="study-kicker" id="study-kicker">Nghiên cứu ra quyết định</p>
+        <p class="study-title" id="study-title">Quyết định trong hệ thống xử lý hồ sơ</p>
+      </div>
+      <div class="study-meta" id="study-meta"></div>
+    </div>
+  </header>
+  <main id="app" class="app-shell" tabindex="-1" aria-live="polite"></main>
+  <footer class="study-footer">
+    <span id="footer-version"></span>
+  </footer>
+  <noscript>
+    <div class="fatal-message">This experiment requires JavaScript.</div>
+  </noscript>
+  <script>
+    window.QUEUE_BOOT = {"study_id":"queue_individual_market_demo","study_version":"1.0.0-public-demo","protocol_version":"2026-08-11","mode":"PILOT","demo_mode":true,"default_language":"vi","researcher_name":"","researcher_email":"","ethics_reference":"","require_invite":false,"fixed_payment_vnd":50000,"points_per_10000_vnd":100,"start_balance":300,"num_rounds":20,"num_customers":4,"num_computer_customers":3,"h_value":120,"l_value":30,"mixed_h_probability":0.4,"mixed_expected_value":66,"waiting_charge_per_unit":5,"wait_units_low":10,"wait_units_high":16,"decision_timeout_seconds":60,"summary_timeout_seconds":45,"belief_max_points":10,"max_total_served":80};
+  </script>
+  <script>window.DEMO_CONFIG={"FIXED_PAYMENT_VND":50000,"POINTS_PER_10000_VND":100,"START_BALANCE":300,"NUM_ROUNDS":20,"NUM_CUSTOMERS":4,"NUM_COMPUTER_CUSTOMERS":3,"NUM_H_CASES":8,"NUM_LOW_WAIT_ROUNDS":10,"H_VALUE":120,"L_VALUE":30,"MIXED_H_PROBABILITY":0.4,"MIXED_EXPECTED_VALUE":66,"WAITING_CHARGE_PER_UNIT":5,"WAIT_UNITS_LOW":10,"WAIT_UNITS_HIGH":16,"FRESH_BACKLOG_THRESHOLD":2,"FRESH_CAPACITY":3,"BUSY_CAPACITY":2,"BELIEF_MAX_POINTS":10,"MAX_TOTAL_SERVED":80,"TREATMENTS":["mixed","fine","state_dependent"]};</script>
+<script>/**
+ * Pure experiment engine. These functions have no SpreadsheetApp dependency,
+ * which allows the queue, payoff, and randomization rules to be tested locally.
+ */
+
+function engineHashSeed_(value) {
+  var text = String(value || "seed");
+  var h = 2166136261 >>> 0;
+  for (var i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h || 1;
+}
+
+function engineRng_(seed) {
+  var state = engineHashSeed_(seed);
+  return function () {
+    state = (state + 0x6D2B79F5) >>> 0;
+    var t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function engineShuffle_(values, random) {
+  var result = values.slice();
+  for (var i = result.length - 1; i > 0; i -= 1) {
+    var j = Math.floor(random() * (i + 1));
+    var tmp = result[i];
+    result[i] = result[j];
+    result[j] = tmp;
+  }
+  return result;
+}
+
+function engineBalancedArray_(firstValue, firstCount, secondValue, total, random) {
+  var values = [];
+  for (var i = 0; i < total; i += 1) {
+    values.push(i < firstCount ? firstValue : secondValue);
+  }
+  return engineShuffle_(values, random);
+}
+
+function engineBuildPlan_(seed, config) {
+  var random = engineRng_(seed);
+  var customers = [];
+  for (var customer = 0; customer < config.NUM_CUSTOMERS; customer += 1) {
+    var types = engineBalancedArray_(
+      "H",
+      config.NUM_H_CASES,
+      "L",
+      config.NUM_ROUNDS,
+      random
+    );
+    var waits = engineBalancedArray_(
+      config.WAIT_UNITS_LOW,
+      config.NUM_LOW_WAIT_ROUNDS,
+      config.WAIT_UNITS_HIGH,
+      config.NUM_ROUNDS,
+      random
+    );
+    var priorities = [];
+    for (var round = 0; round < config.NUM_ROUNDS; round += 1) {
+      priorities.push(random());
+    }
+    customers.push({
+      customer_id: customer === 0 ? "human" : "computer_" + customer,
+      types: types,
+      waits: waits,
+      priorities: priorities
+    });
+  }
+  return { seed: String(seed), customers: customers };
+}
+
+function engineInitialState_(seed, treatment, config) {
+  if (config.TREATMENTS.indexOf(treatment) === -1) {
+    throw new Error("Unknown treatment");
+  }
+  return {
+    treatment: treatment,
+    plan: engineBuildPlan_(seed, config),
+    next_round: 1,
+    balance: config.START_BALANCE,
+    market_points: 0,
+    total_served: 0,
+    human_served: 0,
+    human_sent: 0,
+    cases: [],
+    round_receipts: {},
+    comprehension_passed: false,
+    comprehension_attempts: [],
+    beliefs: null,
+    questionnaire: null,
+    completed: false
+  };
+}
+
+function engineCaseValue_(type, config) {
+  return type === "H" ? config.H_VALUE : config.L_VALUE;
+}
+
+function engineCasePayoff_(type, waitingUnits, config) {
+  return engineCaseValue_(type, config) -
+    config.WAITING_CHARGE_PER_UNIT * waitingUnits;
+}
+
+function enginePendingCases_(state) {
+  return state.cases.filter(function (caseItem) {
+    return caseItem.status === "waiting";
+  });
+}
+
+function engineProcessorState_(state, config) {
+  var backlog = enginePendingCases_(state).length;
+  return {
+    name: backlog <= config.FRESH_BACKLOG_THRESHOLD ? "fresh" : "busy",
+    backlog_before: backlog,
+    capacity: backlog <= config.FRESH_BACKLOG_THRESHOLD ?
+      config.FRESH_CAPACITY : config.BUSY_CAPACITY
+  };
+}
+
+function engineDisplayLabel_(treatment, actualType, processorState) {
+  if (treatment === "fine") return actualType;
+  if (treatment === "state_dependent" && processorState === "fresh") {
+    return actualType;
+  }
+  return "mixed";
+}
+
+function engineComputerDecision_(displayLabel, waitingUnits, config) {
+  if (displayLabel === "H") return "send";
+  if (displayLabel === "L") return "not_send";
+  return waitingUnits === config.WAIT_UNITS_LOW ? "send" : "not_send";
+}
+
+function enginePublicTrial_(state, config) {
+  if (state.next_round > config.NUM_ROUNDS) return null;
+  var index = state.next_round - 1;
+  var humanPlan = state.plan.customers[0];
+  var processor = engineProcessorState_(state, config);
+  var actualType = humanPlan.types[index];
+  var label = engineDisplayLabel_(
+    state.treatment,
+    actualType,
+    processor.name
+  );
+  var waitingUnits = humanPlan.waits[index];
+  var displayedValue = label === "mixed" ?
+    config.MIXED_EXPECTED_VALUE : engineCaseValue_(label, config);
+  var humanPending = enginePendingCases_(state).filter(function (caseItem) {
+    return caseItem.owner === "human";
+  }).length;
+
+  return {
+    round: state.next_round,
+    label: label,
+    waiting_units: waitingUnits,
+    waiting_charge: waitingUnits * config.WAITING_CHARGE_PER_UNIT,
+    displayed_value: displayedValue,
+    displayed_net_if_served: displayedValue -
+      waitingUnits * config.WAITING_CHARGE_PER_UNIT,
+    current_balance: state.balance,
+    own_cases_waiting: humanPending
+  };
+}
+
+function engineClone_(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function engineProcessRound_(stateInput, decisionInput, config) {
+  var state = engineClone_(stateInput);
+  var round = Number(decisionInput.round);
+  var decision = decisionInput.decision;
+
+  if (!state.comprehension_passed) throw new Error("Comprehension not passed");
+  if (state.completed) throw new Error("Study already completed");
+  if (["send", "not_send"].indexOf(decision) === -1) {
+    throw new Error("Invalid decision");
+  }
+
+  if (state.round_receipts[String(round)]) {
+    var prior = state.round_receipts[String(round)];
+    if (prior.decision !== decision) throw new Error("Conflicting duplicate decision");
+    return { state: state, receipt: prior, idempotent: true };
+  }
+  if (round !== state.next_round) throw new Error("Unexpected round");
+
+  var index = round - 1;
+  var processor = engineProcessorState_(state, config);
+  var entries = [];
+
+  for (var customer = 0; customer < config.NUM_CUSTOMERS; customer += 1) {
+    var plan = state.plan.customers[customer];
+    var actualType = plan.types[index];
+    var waitingUnits = plan.waits[index];
+    var label = engineDisplayLabel_(
+      state.treatment,
+      actualType,
+      processor.name
+    );
+    var ownerDecision = customer === 0 ? decision :
+      engineComputerDecision_(label, waitingUnits, config);
+
+    if (ownerDecision === "send") {
+      var caseItem = {
+        case_id: "r" + round + "_c" + customer,
+        owner: plan.customer_id,
+        entry_round: round,
+        actual_type: actualType,
+        display_label: label,
+        waiting_units: waitingUnits,
+        waiting_charge: waitingUnits * config.WAITING_CHARGE_PER_UNIT,
+        priority: plan.priorities[index],
+        status: "waiting",
+        served_round: null,
+        payoff: null
+      };
+      state.cases.push(caseItem);
+      entries.push(caseItem);
+    }
+  }
+
+  if (decision === "send") {
+    state.human_sent += 1;
+  }
+
+  var waiting = enginePendingCases_(state).sort(function (a, b) {
+    if (a.entry_round !== b.entry_round) return a.entry_round - b.entry_round;
+    return a.priority - b.priority;
+  });
+  var served = waiting.slice(0, processor.capacity);
+  var humanServedThisRound = 0;
+  var humanPointsThisRound = 0;
+
+  served.forEach(function (caseItem) {
+    caseItem.status = "served";
+    caseItem.served_round = round;
+    caseItem.payoff = engineCasePayoff_(
+      caseItem.actual_type,
+      caseItem.waiting_units,
+      config
+    );
+    state.total_served += 1;
+    if (caseItem.owner === "human") {
+      humanServedThisRound += 1;
+      humanPointsThisRound += caseItem.payoff;
+      state.human_served += 1;
+      state.market_points += caseItem.payoff;
+      state.balance += caseItem.payoff;
+    }
+  });
+
+  var humanPlan = state.plan.customers[0];
+  var humanType = humanPlan.types[index];
+  var humanWait = humanPlan.waits[index];
+  var humanLabel = engineDisplayLabel_(
+    state.treatment,
+    humanType,
+    processor.name
+  );
+  var queueAfter = enginePendingCases_(state);
+  var humanWaitingAfter = queueAfter.filter(function (caseItem) {
+    return caseItem.owner === "human";
+  }).length;
+  var computerSent = entries.filter(function (caseItem) {
+    return caseItem.owner !== "human";
+  }).length;
+
+  var receipt = {
+    round: round,
+    decision: decision,
+    timed_out: Boolean(decisionInput.timed_out),
+    actual_type: humanType,
+    display_label: humanLabel,
+    waiting_units: humanWait,
+    waiting_charge: humanWait * config.WAITING_CHARGE_PER_UNIT,
+    processor_state: processor.name,
+    backlog_before: processor.backlog_before,
+    processor_capacity: processor.capacity,
+    computer_cases_sent: computerSent,
+    total_cases_sent: entries.length,
+    total_cases_served: served.length,
+    own_cases_served: humanServedThisRound,
+    own_points_this_round: humanPointsThisRound,
+    own_cases_waiting: humanWaitingAfter,
+    market_queue_after: queueAfter.length,
+    balance_after: state.balance,
+    served_case_ids: served.map(function (caseItem) { return caseItem.case_id; })
+  };
+
+  state.round_receipts[String(round)] = receipt;
+  state.next_round += 1;
+
+  if (round === config.NUM_ROUNDS) {
+    enginePendingCases_(state).forEach(function (caseItem) {
+      caseItem.status = "unserved_end";
+      caseItem.payoff = 0;
+    });
+  }
+
+  return { state: state, receipt: receipt, idempotent: false };
+}
+
+function engineBeliefScore_(guess, truth, config) {
+  return Math.max(0, config.BELIEF_MAX_POINTS - Math.abs(guess - truth));
+}
+
+function engineScoreBeliefs_(stateInput, beliefH, beliefServed, config) {
+  var state = engineClone_(stateInput);
+  if (state.next_round <= config.NUM_ROUNDS) throw new Error("Rounds not complete");
+  if (state.beliefs) return { state: state, results: engineResults_(state, config) };
+
+  var hGuess = Number(beliefH);
+  var servedGuess = Number(beliefServed);
+  if (!Number.isInteger(hGuess) || hGuess < 0 || hGuess > config.NUM_ROUNDS) {
+    throw new Error("Invalid Type H estimate");
+  }
+  if (!Number.isInteger(servedGuess) || servedGuess < 0 ||
+      servedGuess > config.MAX_TOTAL_SERVED) {
+    throw new Error("Invalid service estimate");
+  }
+
+  var actualH = state.plan.customers[0].types.filter(function (type) {
+    return type === "H";
+  }).length;
+  var hPoints = engineBeliefScore_(hGuess, actualH, config);
+  var servedPoints = engineBeliefScore_(servedGuess, state.total_served, config);
+  state.beliefs = {
+    belief_h: hGuess,
+    belief_total_served: servedGuess,
+    actual_h: actualH,
+    actual_total_served: state.total_served,
+    h_points: hPoints,
+    served_points: servedPoints,
+    belief_points: hPoints + servedPoints
+  };
+
+  return { state: state, results: engineResults_(state, config) };
+}
+
+function engineResults_(state, config) {
+  var beliefPoints = state.beliefs ? state.beliefs.belief_points : 0;
+  var totalPoints = state.balance + beliefPoints;
+  var paidPoints = Math.max(0, totalPoints);
+  var bonusVnd = Math.round(
+    paidPoints * 10000 / config.POINTS_PER_10000_VND
+  );
+  return {
+    starting_balance: config.START_BALANCE,
+    case_points: state.market_points,
+    balance_after_cases: state.balance,
+    belief_points: beliefPoints,
+    total_points: totalPoints,
+    paid_points: paidPoints,
+    bonus_vnd: bonusVnd,
+    fixed_payment_vnd: config.FIXED_PAYMENT_VND,
+    total_payment_vnd: config.FIXED_PAYMENT_VND + bonusVnd,
+    own_cases_sent: state.human_sent,
+    own_cases_served: state.human_served,
+    total_market_cases_served: state.total_served
+  };
+}
+
+function engineInstructionProfile_(treatment) {
+  if (treatment === "mixed") return "mixed_only";
+  if (treatment === "fine") return "exact_only";
+  return "variable_labels";
+}
+</script>
+<script>(function () {
+  "use strict";
+
+  var config = window.DEMO_CONFIG;
+  var params = new URLSearchParams(window.location.search);
+  var profile = params.get("profile") || "variable_labels";
+  var treatment = profile === "mixed_only" ? "mixed" :
+    (profile === "exact_only" ? "fine" : "state_dependent");
+  var version = window.QUEUE_BOOT.study_version;
+  var engineKey = "queue-public-demo-engine::" + version;
+  var seedKey = "queue-public-demo-seed::" + version;
+  var sessionKey = "queue-study-session::" + version;
+  var completionKey = "queue-study-completion::" + version;
+
+  if (params.get("reset") === "1") {
+    localStorage.removeItem(engineKey);
+    localStorage.removeItem(seedKey);
+    localStorage.removeItem(sessionKey);
+    sessionStorage.removeItem(completionKey);
+  }
+
+  function randomSeed() {
+    var existing = localStorage.getItem(seedKey);
+    if (existing) return existing;
+    var value = window.crypto && window.crypto.randomUUID ?
+      window.crypto.randomUUID() : String(Date.now()) + "-" + String(Math.random());
+    localStorage.setItem(seedKey, value);
+    return value;
+  }
+
+  function freshState() {
+    var created = engineInitialState_(randomSeed(), treatment, config);
+    saveState(created);
+    return created;
+  }
+
+  function loadState() {
+    var raw = localStorage.getItem(engineKey);
+    if (!raw) return freshState();
+    try {
+      var parsed = JSON.parse(raw);
+      if (parsed.treatment !== treatment) return freshState();
+      return parsed;
+    } catch (ignored) {
+      return freshState();
+    }
+  }
+
+  function saveState(nextState) {
+    localStorage.setItem(engineKey, JSON.stringify(nextState));
+  }
+
+  var state = loadState();
+
+  function participantCode() {
+    return "QL-DEMO";
+  }
+
+  function completionCode() {
+    return "DEMO-COMPLETE";
+  }
+
+  function stateResponse() {
+    var base = {
+      participant_code: participantCode(),
+      instruction_profile: engineInstructionProfile_(state.treatment)
+    };
+    if (state.completed) {
+      base.status = "complete";
+      base.language = "vi";
+      base.completion_code = completionCode();
+      base.results = engineResults_(state, config);
+    } else if (state.beliefs) {
+      base.status = "questionnaire";
+      base.results = engineResults_(state, config);
+    } else if (state.next_round > config.NUM_ROUNDS) {
+      base.status = "beliefs";
+    } else if (state.comprehension_passed) {
+      base.status = "rounds";
+      base.next_trial = enginePublicTrial_(state, config);
+    } else {
+      base.status = "instructions";
+    }
+    return base;
+  }
+
+  function publicReceipt(result) {
+    var receipt = result.receipt;
+    return {
+      round: receipt.round,
+      decision: receipt.decision,
+      timed_out: receipt.timed_out,
+      own_cases_served: receipt.own_cases_served,
+      own_points_this_round: receipt.own_points_this_round,
+      own_cases_waiting: receipt.own_cases_waiting,
+      balance_after: receipt.balance_after,
+      next_trial: enginePublicTrial_(result.state, config)
+    };
+  }
+
+  function responseFor(method, payload) {
+    if (method === "startSession") {
+      state = freshState();
+      return {
+        session_id: "public-demo-session",
+        session_token: "public-demo-token",
+        participant_code: participantCode(),
+        status: "instructions",
+        instruction_profile: engineInstructionProfile_(state.treatment),
+        public_config: window.QUEUE_BOOT
+      };
+    }
+    if (method === "resumeSession") return stateResponse();
+    if (method === "checkComprehension") {
+      var correct = {
+        q1: "C", q2: "D", q3: "A", q4: "B", q5: "C",
+        q6: "A", q7: "A", q8: "C", q9: "C", q10: "B"
+      };
+      var incorrect = Object.keys(correct).filter(function (key) {
+        return !payload.answers || payload.answers[key] !== correct[key];
+      }).map(function (key) { return Number(key.slice(1)); });
+      if (!incorrect.length) {
+        state.comprehension_passed = true;
+        saveState(state);
+      }
+      return {
+        passed: incorrect.length === 0,
+        incorrect_questions: incorrect,
+        attempt_number: 1,
+        next_trial: incorrect.length ? null : enginePublicTrial_(state, config)
+      };
+    }
+    if (method === "submitDecision") {
+      var processed = engineProcessRound_(state, {
+        round: payload.round,
+        decision: payload.decision,
+        timed_out: Boolean(payload.timed_out)
+      }, config);
+      state = processed.state;
+      saveState(state);
+      return publicReceipt(processed);
+    }
+    if (method === "submitBeliefs") {
+      var scored = engineScoreBeliefs_(
+        state,
+        payload.belief_h,
+        payload.belief_total_served,
+        config
+      );
+      state = scored.state;
+      saveState(state);
+      return { results: scored.results };
+    }
+    if (method === "submitQuestionnaire") {
+      state.completed = true;
+      saveState(state);
+      return {
+        participant_code: participantCode(),
+        completion_code: completionCode(),
+        results: engineResults_(state, config)
+      };
+    }
+    throw new Error("Unknown demonstration method: " + method);
+  }
+
+  function Runner() {
+    this.success = function () {};
+    this.failure = function () {};
+  }
+  Runner.prototype.withSuccessHandler = function (handler) {
+    this.success = handler;
+    return this;
+  };
+  Runner.prototype.withFailureHandler = function (handler) {
+    this.failure = handler;
+    return this;
+  };
+
+  ["startSession", "resumeSession", "checkComprehension", "submitDecision", "submitBeliefs", "submitQuestionnaire"]
+    .forEach(function (method) {
+      Runner.prototype[method] = function (payload) {
+        var success = this.success;
+        var failure = this.failure;
+        window.setTimeout(function () {
+          try {
+            success(responseFor(method, payload || {}));
+          } catch (error) {
+            failure(error);
+          }
+        }, 40);
+      };
+    });
+
+  window.google = { script: { run: new Runner() } };
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+
+  var BOOT = window.QUEUE_BOOT || {};
+  var app = document.getElementById("app");
+  var STORAGE_KEY = "queue-study-session::" + (BOOT.study_version || "v1");
+  var COMPLETION_KEY = "queue-study-completion::" + (BOOT.study_version || "v1");
+  var clientStartedAt = new Date().toISOString();
+  var session = {
+    language: BOOT.default_language || "vi",
+    session_id: "",
+    session_token: "",
+    participant_code: "",
+    instruction_profile: "",
+    current_trial: null,
+    results: null,
+    instruction_page: 0,
+    quiz_answers: {},
+    decision_active: false,
+    decision_submitting: false,
+    decision_started_ms: 0,
+    decision_focus_losses: 0,
+    timer_id: null,
+    summary_timer_id: null
+  };
+
+  var TEXT = {
+    vi: {
+      kicker: "Nghiên cứu ra quyết định",
+      title: "Quyết định trong hệ thống xử lý hồ sơ",
+      skip: "Chuyển đến nội dung nghiên cứu",
+      pilot: "BẢN THỬ NỘI BỘ: thông tin thanh toán trên màn hình chỉ dùng để kiểm thử.",
+      demo_banner: "BẢN TRÌNH DIỄN CÔNG KHAI: không thu thập dữ liệu nghiên cứu và không thanh toán. Mọi kết quả chỉ mang tính minh họa.",
+      loading: "Đang kết nối an toàn với hệ thống nghiên cứu...",
+      network_error: "Không thể xác nhận dữ liệu với máy chủ. Vui lòng kiểm tra kết nối và thử lại. Quyết định của bạn chưa bị thay đổi.",
+      retry: "Thử lại",
+      back: "Quay lại",
+      continue: "Tiếp tục",
+      begin: "Bắt đầu hướng dẫn",
+      submit: "Gửi câu trả lời",
+      optional: "Không bắt buộc",
+      progress_consent: "Đồng ý tham gia",
+      progress_instructions: "Hướng dẫn",
+      progress_quiz: "Kiểm tra hiểu",
+      progress_rounds: "Vòng quyết định",
+      progress_beliefs: "Ước đoán",
+      progress_survey: "Bảng hỏi",
+      progress_done: "Hoàn thành",
+      language_title: "Chọn ngôn ngữ",
+      language_intro: "Bạn có thể thực hiện toàn bộ nghiên cứu bằng tiếng Việt hoặc tiếng Anh.",
+      vi_name: "Tiếng Việt",
+      vi_note: "Phiên bản dành cho người tham gia nói tiếng Việt",
+      en_name: "English",
+      en_note: "English-language participant version",
+      consent_title: "Thông tin nghiên cứu và đồng ý tham gia",
+      consent_lead: "Vui lòng đọc kỹ thông tin dưới đây trước khi quyết định tham gia.",
+      consent_body_1: "Đây là một nghiên cứu ra quyết định kéo dài khoảng 20–25 phút. Bạn sẽ nhận {FIXED} VND tiền tham gia cố định và tiền thưởng dựa trên số điểm kiếm được. Tỷ lệ quy đổi là {CONV} điểm = 10.000 VND.",
+      consent_body_2: "Việc tham gia là tự nguyện. Bạn có thể dừng bất kỳ lúc nào bằng cách đóng trang. Nếu bạn dừng trước khi hoàn thành, dữ liệu chưa hoàn chỉnh sẽ được đánh dấu và không được đưa vào phân tích chính.",
+      consent_body_3: "Dữ liệu nghiên cứu được gắn với một mã ngẫu nhiên, không chứa tên hoặc mã số sinh viên. Hệ thống ghi lại quyết định, thời gian phản hồi, số lần trang bị ẩn trong các vòng quyết định, kích thước màn hình theo nhóm và múi giờ để kiểm tra chất lượng dữ liệu.",
+      consent_body_4: "Giảng viên, bạn học và cán bộ trường không được xem quyết định hoặc thu nhập cá nhân của bạn. Việc tham gia và thu nhập không ảnh hưởng đến điểm số, học bổng, tình trạng học tập hoặc quan hệ của bạn với trường.",
+      consent_body_5: "Mọi quy tắc về điểm và thanh toán được mô tả trong nghiên cứu đều đúng. Mục đích cụ thể của nghiên cứu sẽ được giải thích sau khi bạn hoàn thành.",
+      consent_rules: "Trong khi tham gia, vui lòng không trao đổi với người khác và không dùng điện thoại, ghi chú, máy tính cầm tay hoặc trang web bên ngoài.",
+      contact: "Liên hệ nghiên cứu: {NAME}, {EMAIL}. Mã chấp thuận đạo đức: {ETHICS}.",
+      contact_pilot: "Thông tin liên hệ nghiên cứu và mã chấp thuận đạo đức phải được cấu hình trước khi chuyển sang chế độ chính thức.",
+      invite_required: "Bạn cần mở đường dẫn mời cá nhân do nhóm nghiên cứu cung cấp.",
+      age_check: "Tôi xác nhận mình từ 18 tuổi trở lên.",
+      consent_check: "Tôi đã đọc thông tin trên, hiểu rằng việc tham gia là tự nguyện và đồng ý tham gia.",
+      consent_button: "Tôi đồng ý và tiếp tục",
+      demo_consent_title: "Bản trình diễn thí nghiệm",
+      demo_consent_lead: "Trang này cho phép bạn thử toàn bộ trải nghiệm của người tham gia mà không tham gia nghiên cứu thật.",
+      demo_consent_body_1: "Bản trình diễn kéo dài khoảng 20–25 phút. Không có khoản thanh toán thực tế. Các số tiền VND và điểm trên màn hình chỉ minh họa cách tính trong nghiên cứu dự kiến.",
+      demo_consent_body_2: "Bạn có thể đóng trang bất kỳ lúc nào. Tiến trình chỉ được giữ trong trình duyệt để bạn có thể tiếp tục bản trình diễn.",
+      demo_consent_body_3: "Trang trình diễn không gửi quyết định, câu trả lời bảng hỏi hoặc mã nhận dạng đến Google Sheets hay cơ sở dữ liệu nghiên cứu.",
+      demo_consent_body_4: "Việc mở hoặc hoàn thành bản trình diễn không ảnh hưởng đến điểm số, học bổng, tình trạng học tập hoặc quan hệ với trường.",
+      demo_consent_body_5: "Các quy tắc xác suất, điểm và hàng chờ phản ánh thiết kế thí nghiệm dự kiến, nhưng mọi kết quả thanh toán đều là giả định.",
+      demo_contact: "Chỉ dùng để kiểm thử công khai; đây không phải đường dẫn tuyển người tham gia.",
+      demo_age_check: "Tôi hiểu đây là bản trình diễn không thu thập dữ liệu và không thanh toán.",
+      demo_consent_check: "Tôi muốn thử trải nghiệm của người tham gia.",
+      demo_consent_button: "Mở bản trình diễn",
+      instruction_of: "Trang {CURRENT} / {TOTAL}",
+      inst1_title: "Vai trò và cấu trúc thị trường",
+      inst1_html: "<p>Bạn là <strong>khách hàng duy nhất do người tham gia điều khiển</strong> trong một thị trường gồm 4 khách hàng. Ba khách hàng còn lại do máy tính điều khiển. Không có người tham gia nào khác chờ bạn.</p><p>Thị trường có <strong>{N} vòng</strong>. Trong mỗi vòng, mỗi khách hàng nhận một hồ sơ có thể gửi vào hàng chờ. Bạn chỉ quyết định đối với hồ sơ của mình.</p><p>Nếu bạn chọn <strong>Gửi vào hàng chờ</strong>, hồ sơ vào hàng chờ và không thể rút lại. Nếu bạn chọn <strong>Không gửi</strong>, điểm từ hồ sơ đó bằng 0.</p>",
+      inst2_title: "Loại hồ sơ, chi phí chờ và điểm",
+      inst2_intro: "Có hai loại hồ sơ thực tế. Giá trị chỉ được nhận nếu hồ sơ được bộ xử lý phục vụ.",
+      type_h: "Hồ sơ loại H",
+      type_l: "Hồ sơ loại L",
+      type_mixed: "Hồ sơ hỗn hợp",
+      value_if_served: "Giá trị nếu được xử lý",
+      inst2_mixed: "Khi màn hình ghi <strong>Hồ sơ hỗn hợp</strong>, hồ sơ không được xác định là H hay L trên màn hình. Xác suất là loại H bằng 40% và xác suất là loại L bằng 60%. Giá trị kỳ vọng là 0,40×120 + 0,60×30 = 66 điểm.",
+      inst2_wait: "Mỗi hồ sơ hiển thị 10 hoặc 16 đơn vị chờ. Chi phí chờ là 5 điểm cho mỗi đơn vị. Nếu hồ sơ được xử lý, điểm từ hồ sơ bằng:",
+      payoff_formula: "giá trị hồ sơ − 5 × đơn vị chờ",
+      payoff_examples: "Ví dụ tính điểm",
+      example_h10: "Loại H, 10 đơn vị: 120 − 5×10 = 70 điểm",
+      example_h16: "Loại H, 16 đơn vị: 120 − 5×16 = 40 điểm",
+      example_l10: "Loại L, 10 đơn vị: 30 − 5×10 = −20 điểm",
+      example_mixed10: "Hỗn hợp, 10 đơn vị: điểm kỳ vọng nếu được xử lý là 66 − 5×10 = 16",
+      example_mixed16: "Hỗn hợp, 16 đơn vị: điểm kỳ vọng nếu được xử lý là 66 − 5×16 = −14",
+      inst2_zero: "Nếu không gửi, hoặc nếu hồ sơ đã gửi vẫn chưa được xử lý khi thị trường kết thúc, điểm từ hồ sơ đó bằng 0.",
+      inst3_title: "Bộ xử lý và ba khách hàng máy tính",
+      inst3_processor: "Cuối mỗi vòng, bộ xử lý của máy tính phục vụ các hồ sơ trong hàng chờ. Nếu trước các quyết định của vòng có không quá 2 hồ sơ đang chờ, bộ xử lý có thể phục vụ tối đa 3 hồ sơ trong vòng đó. Nếu có từ 3 hồ sơ trở lên đang chờ, bộ xử lý có thể phục vụ tối đa 2 hồ sơ. Hồ sơ vào hàng chờ sớm hơn được phục vụ trước; thứ tự giữa các hồ sơ vào cùng một vòng được máy tính xác định ngẫu nhiên trước.",
+      inst3_private: "Bạn sẽ thấy số hồ sơ của chính mình còn chờ, nhưng không thấy loại hồ sơ, đơn vị chờ hoặc quyết định riêng của các khách hàng máy tính.",
+      inst3_bots: "Ba khách hàng máy tính làm theo bảng cố định dưới đây. Quy tắc được lập trình trước và không thay đổi theo danh tính hoặc quyết định trước đây của bạn.",
+      label_shown: "Nhãn hiển thị cho khách hàng máy tính",
+      at_10: "10 đơn vị chờ",
+      at_16: "16 đơn vị chờ",
+      bot_send: "Gửi",
+      bot_not: "Không gửi",
+      inst4_title: "Thông tin trên màn hình và thanh toán",
+      profile_mixed: "Trong các vòng quyết định, hồ sơ của bạn được hiển thị là <strong>Hồ sơ hỗn hợp</strong>. Mỗi hồ sơ đó có xác suất 40% là loại H và 60% là loại L.",
+      profile_exact: "Trong các vòng quyết định, màn hình cho biết chính xác hồ sơ của bạn là <strong>loại H</strong> hay <strong>loại L</strong>.",
+      profile_variable: "Trong các vòng quyết định, màn hình có thể cho biết chính xác loại H hoặc L, hoặc có thể hiển thị <strong>Hồ sơ hỗn hợp</strong>. Nhãn H và L luôn cho biết đúng loại. Nhãn Hỗn hợp luôn có xác suất 40% là H và 60% là L.",
+      inst4_timer: "Bạn có 60 giây cho mỗi quyết định. Nếu hết thời gian trước khi bạn chọn, máy tính ghi nhận <strong>Không gửi</strong>. Sau mỗi vòng, màn hình tóm tắt số hồ sơ của bạn được xử lý, điểm thay đổi và số hồ sơ của bạn còn chờ.",
+      inst4_balance: "Bạn bắt đầu với <strong>{START} điểm</strong>. Điểm từ hồ sơ được cộng hoặc trừ vào số dư này. Sau 20 vòng, bạn trả lời hai câu ước đoán có trả điểm. Tổng điểm âm được quy đổi thành 0 điểm khi tính tiền thưởng.",
+      demo_inst4_balance: "Bạn bắt đầu bản trình diễn với <strong>{START} điểm</strong>. Điểm từ hồ sơ được cộng hoặc trừ vào số dư minh họa. Sau 20 vòng, hai câu ước đoán được chấm bằng điểm giả định.",
+      inst4_payment: "Tiền thanh toán cuối cùng bằng {FIXED} VND tiền tham gia cố định cộng với tiền thưởng. Tỷ lệ là {CONV} điểm = 10.000 VND. Bảng hỏi cuối không làm thay đổi thu nhập.",
+      demo_inst4_payment: "Trong bản trình diễn, màn hình minh họa khoản cố định {FIXED} VND và tiền thưởng theo tỷ lệ {CONV} điểm = 10.000 VND. Không có khoản tiền thực tế nào được trả.",
+      quiz_title: "Kiểm tra hiểu quy tắc",
+      quiz_intro: "Bạn phải trả lời đúng tất cả câu hỏi trước khi các vòng có trả thưởng bắt đầu. Nếu có câu chưa đúng, bạn sẽ thấy phần cần xem lại và có thể thử lại.",
+      demo_quiz_intro: "Bạn phải trả lời đúng tất cả câu hỏi trước khi các vòng trình diễn bắt đầu. Nếu có câu chưa đúng, bạn sẽ thấy phần cần xem lại và có thể thử lại.",
+      quiz_missing: "Vui lòng chọn một đáp án cho mỗi câu.",
+      quiz_incorrect: "Có {N} câu chưa đúng. Vui lòng xem giải thích, sửa câu trả lời và gửi lại.",
+      quiz_passed: "Bạn đã trả lời đúng tất cả câu hỏi.",
+      your_answer: "Bạn chọn",
+      explanation: "Giải thích",
+      start_rounds: "Bắt đầu vòng 1",
+      round: "Vòng",
+      of_rounds: "trên",
+      current_balance: "Số điểm hiện tại",
+      own_waiting: "Hồ sơ của bạn đang chờ",
+      case_label: "Nhãn hồ sơ",
+      mixed_case_text: "Hồ sơ này có xác suất 40% là loại H và 60% là loại L.",
+      h_case_text: "Hồ sơ này là loại H. Giá trị nếu được xử lý là 120 điểm.",
+      l_case_text: "Hồ sơ này là loại L. Giá trị nếu được xử lý là 30 điểm.",
+      waiting_units: "Đơn vị chờ",
+      waiting_charge: "Chi phí chờ",
+      displayed_value: "Giá trị hiển thị",
+      net_if_served: "Điểm nếu được xử lý",
+      expected_net_if_served: "Điểm kỳ vọng nếu được xử lý",
+      choose_action: "Chọn một phương án",
+      send: "Gửi vào hàng chờ",
+      not_send: "Không gửi",
+      time_remaining: "Thời gian còn lại",
+      timeout_default: "Nếu hết thời gian, máy tính ghi nhận Không gửi.",
+      no_waiting_cases: "Không có hồ sơ nào của bạn đang chờ.",
+      queue_label: "Hồ sơ của bạn đang chờ:",
+      submitting_decision: "Đang xác nhận quyết định với máy chủ...",
+      round_summary: "Tóm tắt vòng {ROUND}",
+      timed_out_note: "Bạn chưa chọn trước khi hết thời gian, vì vậy hồ sơ không được gửi.",
+      sent_this_round: "Hồ sơ bạn gửi trong vòng này",
+      served_this_round: "Hồ sơ của bạn được xử lý trong vòng này",
+      points_this_round: "Điểm từ hồ sơ được xử lý trong vòng này",
+      waiting_after: "Hồ sơ của bạn còn chờ",
+      balance_after: "Số điểm hiện tại",
+      next_round: "Vòng tiếp theo",
+      next_section: "Tiếp tục",
+      auto_continue: "Tự động tiếp tục sau {SECONDS} giây",
+      beliefs_title: "Hai câu hỏi ước đoán có trả điểm",
+      demo_beliefs_title: "Hai câu hỏi ước đoán minh họa",
+      beliefs_intro: "Mỗi câu có thể mang lại tối đa {MAX} điểm. Bạn nhận {MAX} điểm nếu đoán đúng chính xác, sau đó trừ 1 điểm cho mỗi đơn vị chênh lệch; điểm mỗi câu không thấp hơn 0.",
+      demo_beliefs_intro: "Trong bản trình diễn, mỗi câu được chấm tối đa {MAX} điểm giả định. Đoán đúng nhận {MAX} điểm, sau đó trừ 1 điểm cho mỗi đơn vị chênh lệch; không có thanh toán thực tế.",
+      belief_h: "Trong 20 hồ sơ của bạn, bạn đoán có bao nhiêu hồ sơ thực sự là loại H?",
+      belief_served: "Trong toàn bộ thị trường gồm 4 khách hàng, bạn đoán bộ xử lý đã phục vụ tổng cộng bao nhiêu hồ sơ trong 20 vòng?",
+      belief_range_h: "Nhập một số từ 0 đến 20.",
+      belief_range_served: "Nhập một số từ 0 đến 80.",
+      beliefs_error: "Vui lòng nhập số nguyên trong phạm vi cho cả hai câu.",
+      results_title: "Kết quả trả thưởng",
+      demo_results_title: "Kết quả minh họa",
+      starting_balance: "Số dư ban đầu",
+      case_points: "Điểm cộng hoặc trừ từ hồ sơ",
+      balance_cases: "Số dư sau các vòng",
+      belief_points: "Điểm từ hai câu ước đoán",
+      total_points: "Tổng điểm",
+      bonus_payment: "Tiền thưởng",
+      demo_bonus_payment: "Tiền thưởng minh họa",
+      fixed_payment: "Tiền tham gia cố định",
+      demo_fixed_payment: "Khoản cố định minh họa",
+      total_payment: "Tổng thanh toán",
+      demo_total_payment: "Tổng minh họa",
+      negative_floor: "Nếu tổng điểm âm, tiền thưởng được đặt bằng 0. Khoản cố định không bị giảm.",
+      demo_negative_floor: "Phép quy đổi minh họa đặt tiền thưởng bằng 0 nếu tổng điểm âm. Không có khoản thanh toán thực tế.",
+      to_survey: "Tiếp tục đến bảng hỏi",
+      survey_title: "Bảng hỏi sau thí nghiệm",
+      survey_intro: "Các câu hỏi dưới đây không làm thay đổi thu nhập. Bạn có thể bỏ qua bất kỳ câu nào mà bạn không muốn trả lời.",
+      demo_survey_intro: "Các câu hỏi này chỉ để thử giao diện và không được gửi đến nhóm nghiên cứu. Bạn có thể bỏ qua bất kỳ câu nào.",
+      label_difficulty: "Việc hiểu nhãn hồ sơ khó đến mức nào?",
+      label_effect: "Nhãn hồ sơ ảnh hưởng đến quyết định của bạn đến mức nào?",
+      waiting_effect: "Đơn vị chờ ảnh hưởng đến quyết định của bạn đến mức nào?",
+      attention_check: "Để xác nhận bạn đang đọc câu hỏi này, vui lòng chọn số 4.",
+      scale_easy: "1 = rất dễ; 7 = rất khó",
+      scale_none: "1 = không ảnh hưởng; 7 = ảnh hưởng rất mạnh",
+      understood: "Bạn có hiểu cách tính điểm từ hồ sơ không?",
+      believed: "Bạn có tin thông tin hiển thị trên màn hình không?",
+      yes: "Có",
+      no: "Không",
+      unsure: "Không chắc",
+      choose_optional: "Chọn một phương án (không bắt buộc)",
+      strategy: "Bạn đã quyết định có gửi hồ sơ như thế nào?",
+      confusing: "Có phần nào trong hướng dẫn hoặc màn hình quyết định mà bạn thấy khó hiểu không? Nếu có, vui lòng mô tả ngắn gọn.",
+      about_you: "Thông tin về bạn",
+      age: "Tuổi",
+      gender: "Giới tính",
+      female: "Nữ",
+      male: "Nam",
+      nonbinary: "Phi nhị nguyên",
+      other: "Khác",
+      prefer_not: "Không muốn trả lời",
+      field: "Ngành học chính",
+      econ_business: "Kinh tế / Kinh doanh / Quản trị",
+      stem: "Khoa học tự nhiên / Kỹ thuật / CNTT",
+      social_science: "Khoa học xã hội khác",
+      humanities: "Nhân văn / Ngôn ngữ",
+      year: "Năm học",
+      year_1: "Năm thứ nhất",
+      year_2: "Năm thứ hai",
+      year_3: "Năm thứ ba",
+      year_4: "Năm thứ tư",
+      year_5: "Năm thứ năm trở lên / Sau đại học",
+      prior: "Bạn đã từng tham gia thí nghiệm có trả thưởng chưa?",
+      risk: "Nhìn chung, bạn sẵn sàng chấp nhận rủi ro ở mức nào? 0 = hoàn toàn không sẵn sàng; 10 = rất sẵn sàng.",
+      patience: "Nhìn chung, bạn sẵn sàng từ bỏ một lợi ích hôm nay để nhận lợi ích lớn hơn trong tương lai ở mức nào? 0 = hoàn toàn không sẵn sàng; 10 = rất sẵn sàng.",
+      finish: "Gửi bảng hỏi và hoàn thành",
+      final_retry_body: "Câu trả lời bạn vừa nhập vẫn được giữ trong trình duyệt này. Vui lòng thử gửi lại khi kết nối ổn định.",
+      debrief_title: "Cảm ơn bạn đã tham gia",
+      debrief_heading: "Giải thích sau thí nghiệm",
+      confirmed: "Dữ liệu của bạn đã được máy chủ xác nhận và ghi nhận.",
+      demo_confirmed: "Bản trình diễn đã hoàn thành. Không có dữ liệu nghiên cứu nào được ghi nhận.",
+      completion_label: "Mã hoàn thành của bạn",
+      demo_completion_label: "Mã hoàn thành bản trình diễn",
+      keep_code: "Hãy lưu mã này để đối chiếu thanh toán. Không gửi ảnh chụp quyết định hoặc dữ liệu dự phòng.",
+      demo_keep_code: "Mã này chỉ xác nhận rằng bạn đã đi hết bản trình diễn; mã không dùng để thanh toán.",
+      restart_demo: "Bắt đầu lại bản trình diễn",
+      copy_code: "Sao chép mã",
+      copied: "Đã sao chép mã.",
+      debrief_1: "Nghiên cứu này xem xét cách thông tin về loại hồ sơ và chi phí chờ ảnh hưởng đến quyết định gửi hồ sơ, diễn biến hàng chờ và số hồ sơ được xử lý.",
+      debrief_2: "Một số người tham gia chỉ thấy nhãn Hỗn hợp, một số thấy loại H hoặc L, và một số thấy định dạng nhãn thay đổi theo điều kiện của hệ thống. Chúng tôi so sánh quyết định giữa các phiên bản này.",
+      debrief_3: "Ba khách hàng máy tính và bộ xử lý đã làm đúng theo các quy tắc được lập trình trước. Mọi thông tin về điểm và xác suất hiển thị trong nghiên cứu đều đúng.",
+      debrief_4: "Vui lòng không thảo luận chi tiết nghiên cứu với người có thể tham gia trong tương lai.",
+      payment_confirm: "Khoản thanh toán được đối chiếu: {FIXED} VND cố định + {BONUS} VND tiền thưởng = {TOTAL} VND.",
+      demo_payment_confirm: "Minh họa thanh toán: {FIXED} VND cố định + {BONUS} VND tiền thưởng = {TOTAL} VND. Không có khoản thanh toán thực tế.",
+      recovery_title: "Tiếp tục phiên đang làm",
+      recovery_body: "Trình duyệt này có một phiên chưa hoàn thành với mã {CODE}. Hệ thống có thể tiếp tục từ điểm đã được máy chủ xác nhận gần nhất.",
+      demo_recovery_title: "Tiếp tục bản trình diễn",
+      demo_recovery_body: "Trình duyệt này đã lưu cục bộ một bản trình diễn chưa hoàn thành với mã {CODE}. Bạn có thể tiếp tục từ vòng đã lưu gần nhất.",
+      resume: "Tiếp tục phiên",
+      demo_resume: "Tiếp tục bản trình diễn",
+      clear_local: "Đây không phải phiên của tôi",
+      resume_error: "Không thể khôi phục phiên. Dữ liệu cục bộ đã được giữ lại để bạn có thể thử lại.",
+      leave_warning: "Phiên nghiên cứu đang diễn ra. Quyết định đã xác nhận vẫn được lưu, nhưng bạn chưa hoàn thành nghiên cứu.",
+      demo_leave_warning: "Bản trình diễn đang diễn ra. Tiến trình được giữ trong trình duyệt này nhưng bạn chưa hoàn thành."
+    },
+    en: {
+      kicker: "Decision-making research",
+      title: "Decisions in a case-processing system",
+      skip: "Skip to the experiment",
+      pilot: "INTERNAL PILOT: payment statements on this screen are for testing only.",
+      demo_banner: "PUBLIC DEMONSTRATION: no research data are collected and no payment is made. All results are illustrative.",
+      loading: "Connecting securely to the research system...",
+      network_error: "The server could not confirm your data. Check your connection and try again. Your decision has not been changed.",
+      retry: "Try again",
+      back: "Back",
+      continue: "Continue",
+      begin: "Begin instructions",
+      submit: "Submit answers",
+      optional: "Optional",
+      progress_consent: "Consent",
+      progress_instructions: "Instructions",
+      progress_quiz: "Comprehension",
+      progress_rounds: "Decision rounds",
+      progress_beliefs: "Estimates",
+      progress_survey: "Questionnaire",
+      progress_done: "Finished",
+      language_title: "Choose a language",
+      language_intro: "You can complete the entire study in Vietnamese or English.",
+      vi_name: "Tiếng Việt",
+      vi_note: "Phiên bản dành cho người tham gia nói tiếng Việt",
+      en_name: "English",
+      en_note: "English-language participant version",
+      consent_title: "Study information and consent",
+      consent_lead: "Please read the following information carefully before deciding whether to take part.",
+      consent_body_1: "This is a decision-making study lasting approximately 20–25 minutes. You will receive a fixed participation payment of {FIXED} VND plus a bonus based on the points you earn. The conversion rate is {CONV} points = 10,000 VND.",
+      consent_body_2: "Participation is voluntary. You may stop at any time by closing the page. If you stop before finishing, the incomplete record will be flagged and will not be included in the main analysis.",
+      consent_body_3: "Research data are linked to a random code and do not contain your name or student number. The system records decisions, response times, the number of times the page is hidden during decision rounds, broad screen-size category, and time zone for data-quality checks.",
+      consent_body_4: "Your instructor, classmates, and university administrators will not see your individual decisions or earnings. Participation and earnings do not affect grades, scholarships, course standing, or your relationship with the university.",
+      consent_body_5: "All point and payment rules described in the study are true. The study’s more specific purpose will be explained after you finish.",
+      consent_rules: "While participating, do not communicate with anyone else or use a phone, notes, calculator, or outside website.",
+      contact: "Research contact: {NAME}, {EMAIL}. Ethics approval reference: {ETHICS}.",
+      contact_pilot: "Research contact and ethics approval details must be configured before production mode is enabled.",
+      invite_required: "You must open the personal invitation link supplied by the research team.",
+      age_check: "I confirm that I am at least 18 years old.",
+      consent_check: "I have read the information above, understand that participation is voluntary, and consent to take part.",
+      consent_button: "I consent and wish to continue",
+      demo_consent_title: "Experiment demonstration",
+      demo_consent_lead: "This page lets you test the full participant experience without joining the real study.",
+      demo_consent_body_1: "The demonstration takes approximately 20–25 minutes. No real payment is made. VND amounts and points on screen only illustrate how payment would be calculated in the planned study.",
+      demo_consent_body_2: "You may close the page at any time. Progress is retained only in this browser so that you can resume the demonstration.",
+      demo_consent_body_3: "The demonstration does not send decisions, questionnaire answers, or identifiers to Google Sheets or a research database.",
+      demo_consent_body_4: "Opening or completing the demonstration has no effect on grades, scholarships, course standing, or your relationship with a university.",
+      demo_consent_body_5: "The probability, point, and queue rules reflect the planned experimental design, but every payment result is hypothetical.",
+      demo_contact: "Public testing only; this is not a participant-recruitment link.",
+      demo_age_check: "I understand that this is a no-data, no-payment demonstration.",
+      demo_consent_check: "I want to test the participant experience.",
+      demo_consent_button: "Open demonstration",
+      instruction_of: "Page {CURRENT} of {TOTAL}",
+      inst1_title: "Your role and the market",
+      inst1_html: "<p>You are the <strong>only customer controlled by a participant</strong> in a market containing 4 customers. The other three customers are controlled by the computer. No other participant is waiting for you.</p><p>The market lasts <strong>{N} rounds</strong>. In every round, each customer receives one possible case. You decide only for your own case.</p><p>If you choose <strong>Send to queue</strong>, the case enters the queue and cannot be removed. If you choose <strong>Do not send</strong>, that case pays 0 points.</p>",
+      inst2_title: "Case types, waiting charges, and points",
+      inst2_intro: "There are two actual case types. A case provides value only if the processor serves it.",
+      type_h: "Type H case",
+      type_l: "Type L case",
+      type_mixed: "Mixed case",
+      value_if_served: "Value if served",
+      inst2_mixed: "When the screen says <strong>Mixed case</strong>, the case is not identified on screen as H or L. It has a 40% chance of being Type H and a 60% chance of being Type L. Its expected value is 0.40×120 + 0.60×30 = 66 points.",
+      inst2_wait: "Each case displays either 10 or 16 waiting units. The waiting charge is 5 points per unit. If a case is served, its payoff is:",
+      payoff_formula: "case value − 5 × waiting units",
+      payoff_examples: "Payoff examples",
+      example_h10: "Type H, 10 units: 120 − 5×10 = 70 points",
+      example_h16: "Type H, 16 units: 120 − 5×16 = 40 points",
+      example_l10: "Type L, 10 units: 30 − 5×10 = −20 points",
+      example_mixed10: "Mixed, 10 units: expected payoff if served is 66 − 5×10 = 16",
+      example_mixed16: "Mixed, 16 units: expected payoff if served is 66 − 5×16 = −14",
+      inst2_zero: "If you do not send a case, or if a sent case remains unserved when the market ends, that case pays 0 points.",
+      inst3_title: "The processor and three computer customers",
+      inst3_processor: "At the end of each round, the computer processor serves cases from the queue. If no more than 2 cases were waiting before that round’s decisions, it can serve up to 3 cases during the round. If 3 or more cases were waiting, it can serve up to 2. Cases that entered earlier are served first; the order among cases entering in the same round was randomly fixed by the computer in advance.",
+      inst3_private: "You will see how many of your own cases remain waiting, but you will not see the computer customers’ private case types, waiting units, or individual decisions.",
+      inst3_bots: "The three computer customers follow the fixed table below. Their rule was programmed in advance and does not change with your identity or earlier decisions.",
+      label_shown: "Label shown to a computer customer",
+      at_10: "10 waiting units",
+      at_16: "16 waiting units",
+      bot_send: "Send",
+      bot_not: "Do not send",
+      inst4_title: "Information on screen and payment",
+      profile_mixed: "During the decision rounds, your cases are displayed as <strong>Mixed cases</strong>. Each has a 40% chance of being Type H and a 60% chance of being Type L.",
+      profile_exact: "During the decision rounds, the screen identifies your case exactly as <strong>Type H</strong> or <strong>Type L</strong>.",
+      profile_variable: "During the decision rounds, the screen may identify the exact H or L type, or it may display <strong>Mixed case</strong>. H and L labels always identify the actual type correctly. A Mixed label always means a 40% chance of H and a 60% chance of L.",
+      inst4_timer: "You have 60 seconds for each decision. If time expires before you choose, the computer records <strong>Do not send</strong>. After each round, a summary shows how many of your cases were served, your point change, and how many of your cases remain waiting.",
+      inst4_balance: "You start with <strong>{START} points</strong>. Case payoffs are added to or subtracted from this balance. After 20 rounds, you answer two paid estimation questions. A negative final point total is converted to 0 when calculating the bonus.",
+      demo_inst4_balance: "You start the demonstration with <strong>{START} points</strong>. Case payoffs are added to or subtracted from this illustrative balance. After 20 rounds, two estimation questions are scored in hypothetical points.",
+      inst4_payment: "Final payment equals the fixed participation payment of {FIXED} VND plus your bonus. The conversion rate is {CONV} points = 10,000 VND. The final questionnaire does not change your earnings.",
+      demo_inst4_payment: "In this demonstration, the screen illustrates a {FIXED} VND fixed payment and a bonus at {CONV} points = 10,000 VND. No real payment is made.",
+      quiz_title: "Comprehension check",
+      quiz_intro: "You must answer every question correctly before the paid rounds begin. If an answer is incorrect, you will see what to review and may try again.",
+      demo_quiz_intro: "You must answer every question correctly before the demonstration rounds begin. If an answer is incorrect, you will see what to review and may try again.",
+      quiz_missing: "Select one answer for every question.",
+      quiz_incorrect: "{N} answers are not correct. Review the explanations, revise your answers, and submit again.",
+      quiz_passed: "You answered every question correctly.",
+      your_answer: "You selected",
+      explanation: "Explanation",
+      start_rounds: "Start round 1",
+      round: "Round",
+      of_rounds: "of",
+      current_balance: "Current balance",
+      own_waiting: "Your cases waiting",
+      case_label: "Case label",
+      mixed_case_text: "This case has a 40% chance of being Type H and a 60% chance of being Type L.",
+      h_case_text: "This is a Type H case. Its value if served is 120 points.",
+      l_case_text: "This is a Type L case. Its value if served is 30 points.",
+      waiting_units: "Waiting units",
+      waiting_charge: "Waiting charge",
+      displayed_value: "Displayed value",
+      net_if_served: "Points if served",
+      expected_net_if_served: "Expected points if served",
+      choose_action: "Choose one action",
+      send: "Send to queue",
+      not_send: "Do not send",
+      time_remaining: "Time remaining",
+      timeout_default: "If time expires, the computer records Do not send.",
+      no_waiting_cases: "None of your cases are waiting.",
+      queue_label: "Your cases waiting:",
+      submitting_decision: "Confirming your decision with the server...",
+      round_summary: "Round {ROUND} summary",
+      timed_out_note: "You did not choose before time expired, so the case was not sent.",
+      sent_this_round: "Cases you sent this round",
+      served_this_round: "Your cases served this round",
+      points_this_round: "Points from cases served this round",
+      waiting_after: "Your cases still waiting",
+      balance_after: "Current balance",
+      next_round: "Next round",
+      next_section: "Continue",
+      auto_continue: "Continuing automatically in {SECONDS} seconds",
+      beliefs_title: "Two paid estimation questions",
+      demo_beliefs_title: "Two illustrative estimation questions",
+      beliefs_intro: "Each question can pay up to {MAX} points. An exactly correct estimate pays {MAX} points, minus 1 point for each unit of error, with a minimum of 0 points per question.",
+      demo_beliefs_intro: "In the demonstration, each estimate is scored with up to {MAX} hypothetical points. An exact estimate receives {MAX} points, minus 1 for each unit of error; no real payment is made.",
+      belief_h: "Of your 20 cases, how many do you think were actually Type H?",
+      belief_served: "Across the entire four-customer market, how many cases do you think the processor served during the 20 rounds?",
+      belief_range_h: "Enter an integer from 0 to 20.",
+      belief_range_served: "Enter an integer from 0 to 80.",
+      beliefs_error: "Enter an integer in the permitted range for both questions.",
+      results_title: "Payment results",
+      demo_results_title: "Illustrative results",
+      starting_balance: "Starting balance",
+      case_points: "Points added or subtracted from cases",
+      balance_cases: "Balance after the rounds",
+      belief_points: "Points from the two estimates",
+      total_points: "Total points",
+      bonus_payment: "Bonus payment",
+      demo_bonus_payment: "Illustrative bonus",
+      fixed_payment: "Fixed participation payment",
+      demo_fixed_payment: "Illustrative fixed amount",
+      total_payment: "Total payment",
+      demo_total_payment: "Illustrative total",
+      negative_floor: "If total points are negative, the bonus is set to zero. The fixed payment is not reduced.",
+      demo_negative_floor: "The illustrative conversion floors the bonus at zero when total points are negative. No real payment is made.",
+      to_survey: "Continue to questionnaire",
+      survey_title: "Post-experiment questionnaire",
+      survey_intro: "These questions do not change your earnings. You may skip any question you do not wish to answer.",
+      demo_survey_intro: "These questions only test the interface and are not sent to the research team. You may skip any question.",
+      label_difficulty: "How difficult was it to understand the case labels?",
+      label_effect: "How strongly did the case label affect your decisions?",
+      waiting_effect: "How strongly did the waiting units affect your decisions?",
+      attention_check: "To confirm that you are reading this item, please select 4.",
+      scale_easy: "1 = very easy; 7 = very difficult",
+      scale_none: "1 = not at all; 7 = very strongly",
+      understood: "Did you understand how case payoffs were calculated?",
+      believed: "Did you believe the information shown on screen?",
+      yes: "Yes",
+      no: "No",
+      unsure: "Not sure",
+      choose_optional: "Choose an option (optional)",
+      strategy: "In your own words, how did you decide whether to send a case?",
+      confusing: "Was any part of the instructions or decision screen difficult to understand? Please briefly describe.",
+      about_you: "About you",
+      age: "Age",
+      gender: "Gender",
+      female: "Female",
+      male: "Male",
+      nonbinary: "Non-binary",
+      other: "Other",
+      prefer_not: "Prefer not to answer",
+      field: "Main field of study",
+      econ_business: "Economics / Business / Management",
+      stem: "Natural sciences / Engineering / IT",
+      social_science: "Other social sciences",
+      humanities: "Humanities / Languages",
+      year: "Year of study",
+      year_1: "First year",
+      year_2: "Second year",
+      year_3: "Third year",
+      year_4: "Fourth year",
+      year_5: "Fifth year or above / Postgraduate",
+      prior: "Have you participated in a paid experiment before?",
+      risk: "In general, how willing are you to take risks? 0 = completely unwilling; 10 = very willing.",
+      patience: "In general, how willing are you to give up something beneficial today to receive a larger benefit in the future? 0 = completely unwilling; 10 = very willing.",
+      finish: "Submit questionnaire and finish",
+      final_retry_body: "The answers you just entered are still held in this browser. Please retry when the connection is stable.",
+      debrief_title: "Thank you for participating",
+      debrief_heading: "Debriefing",
+      confirmed: "Your data were confirmed and recorded by the server.",
+      demo_confirmed: "The demonstration is complete. No research data were recorded.",
+      completion_label: "Your completion code",
+      demo_completion_label: "Demonstration completion code",
+      keep_code: "Keep this code for payment matching. Do not send screenshots of decisions or backup data.",
+      demo_keep_code: "This code only confirms that you reached the end of the demonstration; it is not used for payment.",
+      restart_demo: "Restart demonstration",
+      copy_code: "Copy code",
+      copied: "Code copied.",
+      debrief_1: "This study examines how information about case types and waiting charges affects decisions to send cases, the development of a queue, and which cases are eventually served.",
+      debrief_2: "Some participants saw only Mixed labels, some saw H or L labels, and some saw the label format vary with system conditions. We compare decisions across these versions.",
+      debrief_3: "The three computer customers and processor followed the rules programmed before the study. All payoff and probability information displayed during the study was truthful.",
+      debrief_4: "Please do not discuss the study details with anyone who may participate in the future.",
+      payment_confirm: "Payment record: {FIXED} VND fixed + {BONUS} VND bonus = {TOTAL} VND.",
+      demo_payment_confirm: "Illustrative payment: {FIXED} VND fixed + {BONUS} VND bonus = {TOTAL} VND. No real payment is made.",
+      recovery_title: "Resume your study session",
+      recovery_body: "This browser contains an unfinished session with code {CODE}. The system can resume from the most recent point confirmed by the server.",
+      demo_recovery_title: "Resume the demonstration",
+      demo_recovery_body: "This browser locally retained an unfinished demonstration with code {CODE}. You can continue from the most recently saved round.",
+      resume: "Resume session",
+      demo_resume: "Resume demonstration",
+      clear_local: "This is not my session",
+      resume_error: "The session could not be restored. The local record has been kept so that you can try again.",
+      leave_warning: "The study is still in progress. Confirmed decisions remain saved, but you have not completed the study.",
+      demo_leave_warning: "The demonstration is still in progress. Progress remains in this browser, but you have not finished."
+    }
+  };
+
+  var QUIZ = {
+    vi: [
+      { q: "Nếu bạn chọn Không gửi, điểm từ hồ sơ đó là bao nhiêu?", o: [["A", "120 điểm"], ["B", "30 điểm"], ["C", "0 điểm"], ["D", "Phụ thuộc vào bộ xử lý"]], e: "Không gửi nghĩa là hồ sơ không vào hàng chờ và điểm từ hồ sơ đó bằng 0." },
+      { q: "Hồ sơ loại H có giá trị bao nhiêu điểm nếu được xử lý?", o: [["A", "30"], ["B", "66"], ["C", "100"], ["D", "120"]], e: "Hồ sơ loại H có giá trị 120 điểm nếu được xử lý." },
+      { q: "Hồ sơ loại L có giá trị bao nhiêu điểm nếu được xử lý?", o: [["A", "30"], ["B", "66"], ["C", "100"], ["D", "120"]], e: "Hồ sơ loại L có giá trị 30 điểm nếu được xử lý." },
+      { q: "Hồ sơ hỗn hợp có xác suất là loại H bằng bao nhiêu?", o: [["A", "20%"], ["B", "40%"], ["C", "60%"], ["D", "100%"]], e: "Hồ sơ hỗn hợp có xác suất 40% là H và 60% là L." },
+      { q: "Giá trị kỳ vọng của hồ sơ hỗn hợp là bao nhiêu?", o: [["A", "30 điểm"], ["B", "60 điểm"], ["C", "66 điểm"], ["D", "120 điểm"]], e: "0,40×120 + 0,60×30 = 66 điểm." },
+      { q: "Nếu hồ sơ loại H được xử lý và màn hình hiển thị 16 đơn vị chờ, điểm từ hồ sơ đó là bao nhiêu?", o: [["A", "40 điểm"], ["B", "80 điểm"], ["C", "100 điểm"], ["D", "120 điểm"]], e: "120 − 5×16 = 40 điểm." },
+      { q: "Nếu hồ sơ loại L được xử lý và màn hình hiển thị 10 đơn vị chờ, điểm từ hồ sơ đó là bao nhiêu?", o: [["A", "−20 điểm"], ["B", "0 điểm"], ["C", "20 điểm"], ["D", "30 điểm"]], e: "30 − 5×10 = −20 điểm." },
+      { q: "Nếu hồ sơ đã gửi nhưng chưa được xử lý khi thị trường kết thúc, điểm từ hồ sơ đó là bao nhiêu?", o: [["A", "120 điểm"], ["B", "30 điểm"], ["C", "0 điểm"], ["D", "Luôn luôn âm"]], e: "Hồ sơ chưa được xử lý khi thị trường kết thúc trả 0 điểm." },
+      { q: "Ai quyết định hồ sơ nào trong hàng chờ được xử lý?", o: [["A", "Bạn"], ["B", "Một người tham gia khác"], ["C", "Bộ xử lý của máy tính"], ["D", "Giảng viên"]], e: "Bộ xử lý của máy tính áp dụng quy tắc đã lập trình trước." },
+      { q: "Bạn có thể rút hồ sơ khỏi hàng chờ sau khi đã gửi không?", o: [["A", "Có"], ["B", "Không"]], e: "Hồ sơ đã gửi không thể rút khỏi hàng chờ." }
+    ],
+    en: [
+      { q: "If you choose Do not send, what is the payoff from that case?", o: [["A", "120 points"], ["B", "30 points"], ["C", "0 points"], ["D", "It depends on the processor"]], e: "A case that is not sent does not enter the queue and pays 0 points." },
+      { q: "How many points is a Type H case worth if served?", o: [["A", "30"], ["B", "66"], ["C", "100"], ["D", "120"]], e: "A Type H case is worth 120 points if served." },
+      { q: "How many points is a Type L case worth if served?", o: [["A", "30"], ["B", "66"], ["C", "100"], ["D", "120"]], e: "A Type L case is worth 30 points if served." },
+      { q: "What is the probability that a Mixed case is Type H?", o: [["A", "20%"], ["B", "40%"], ["C", "60%"], ["D", "100%"]], e: "A Mixed case is Type H with 40% probability and Type L with 60% probability." },
+      { q: "What is the expected value of a Mixed case?", o: [["A", "30 points"], ["B", "60 points"], ["C", "66 points"], ["D", "120 points"]], e: "0.40×120 + 0.60×30 = 66 points." },
+      { q: "If a Type H case is served and the screen showed 16 waiting units, what is its payoff?", o: [["A", "40 points"], ["B", "80 points"], ["C", "100 points"], ["D", "120 points"]], e: "120 − 5×16 = 40 points." },
+      { q: "If a Type L case is served and the screen showed 10 waiting units, what is its payoff?", o: [["A", "−20 points"], ["B", "0 points"], ["C", "20 points"], ["D", "30 points"]], e: "30 − 5×10 = −20 points." },
+      { q: "If a sent case remains unserved when the market ends, what is its payoff?", o: [["A", "120 points"], ["B", "30 points"], ["C", "0 points"], ["D", "It is always negative"]], e: "A case still unserved at the end pays 0 points." },
+      { q: "Who determines which queued cases are served?", o: [["A", "You"], ["B", "Another participant"], ["C", "The computer processor"], ["D", "The instructor"]], e: "The computer processor applies the rule programmed in advance." },
+      { q: "Can you remove a case from the queue after sending it?", o: [["A", "Yes"], ["B", "No"]], e: "A sent case cannot be removed from the queue." }
+    ]
+  };
+
+  function t(key, values) {
+    var text = (TEXT[session.language] && TEXT[session.language][key]) || key;
+    Object.keys(values || {}).forEach(function (name) {
+      text = text.replace(new RegExp("\\{" + name + "\\}", "g"), String(values[name]));
+    });
+    return text;
+  }
+
+  function isDemo() {
+    return BOOT.demo_mode === true;
+  }
+
+  function escapeHtml(value) {
+    return String(value === null || value === undefined ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function formatVnd(value) {
+    return new Intl.NumberFormat(session.language === "vi" ? "vi-VN" : "en-US")
+      .format(Math.round(Number(value || 0)));
+  }
+
+  function formatPoints(value) {
+    return new Intl.NumberFormat(session.language === "vi" ? "vi-VN" : "en-US")
+      .format(Number(value || 0));
+  }
+
+  function progressHtml(step, label) {
+    var total = 7;
+    var percent = Math.round(step / total * 100);
+    return '<div class="progress-wrap" aria-label="' + escapeHtml(label) + '">' +
+      '<div class="progress-labels"><span>' + escapeHtml(label) + '</span><span>' +
+      percent + '%</span></div><div class="progress-track"><div class="progress-bar" style="width:' +
+      percent + '%"></div></div></div>';
+  }
+
+  function show(html) {
+    app.innerHTML = html;
+    app.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
+
+  function loading() {
+    show('<div class="loading"><div><div class="spinner"></div><p>' +
+      escapeHtml(t("loading")) + '</p></div></div>');
+  }
+
+  function setLanguage(language) {
+    session.language = language === "en" ? "en" : "vi";
+    document.documentElement.lang = session.language;
+    document.getElementById("study-kicker").textContent = t("kicker");
+    document.getElementById("study-title").textContent = t("title");
+    document.getElementById("skip-link").textContent = t("skip");
+    document.getElementById("footer-version").textContent =
+      (BOOT.study_version || "") + " | " + (BOOT.protocol_version || "");
+    var banner = document.getElementById("pilot-banner");
+    if (BOOT.mode === "PILOT") {
+      banner.hidden = false;
+      banner.textContent = t(isDemo() ? "demo_banner" : "pilot");
+    } else {
+      banner.hidden = true;
+    }
+    updateMeta();
+  }
+
+  function updateMeta(extra) {
+    var parts = [];
+    if (session.participant_code) parts.push(session.participant_code);
+    if (extra) parts.push(extra);
+    document.getElementById("study-meta").textContent = parts.join(" | ");
+  }
+
+  function queryValue(keys) {
+    var params = new URLSearchParams(window.location.search);
+    for (var i = 0; i < keys.length; i += 1) {
+      var value = params.get(keys[i]);
+      if (value) return value.slice(0, 200);
+    }
+    return "";
+  }
+
+  function serverCall(method, payload) {
+    return new Promise(function (resolve, reject) {
+      if (!window.google || !google.script || !google.script.run) {
+        reject(new Error("Google Apps Script bridge is unavailable"));
+        return;
+      }
+      var runner = google.script.run
+        .withSuccessHandler(resolve)
+        .withFailureHandler(function (error) {
+          reject(new Error(error && error.message ? error.message : String(error)));
+        });
+      runner[method](payload);
+    });
+  }
+
+  function saveSession() {
+    if (!session.session_id || !session.session_token) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      session_id: session.session_id,
+      session_token: session.session_token,
+      participant_code: session.participant_code,
+      language: session.language,
+      started_at: clientStartedAt
+    }));
+  }
+
+  function clearActiveSession() {
+    localStorage.removeItem(STORAGE_KEY);
+    session.session_id = "";
+    session.session_token = "";
+    session.decision_active = false;
+  }
+
+  function authPayload(extra) {
+    var result = {
+      session_id: session.session_id,
+      session_token: session.session_token
+    };
+    Object.keys(extra || {}).forEach(function (key) { result[key] = extra[key]; });
+    return result;
+  }
+
+  function errorNotice(message) {
+    return '<div class="notice notice--error" role="alert"><p>' +
+      escapeHtml(message || t("network_error")) + '</p></div>';
+  }
+
+  function renderLanguage() {
+    setLanguage(session.language);
+    show('<h1>' + escapeHtml(t("language_title")) + '</h1><p class="lead">' +
+      escapeHtml(t("language_intro")) + '</p><div class="language-grid">' +
+      '<button class="language-button" id="choose-vi"><strong>' + escapeHtml(t("vi_name")) +
+      '</strong><span>' + escapeHtml(t("vi_note")) + '</span></button>' +
+      '<button class="language-button" id="choose-en"><strong>' + escapeHtml(t("en_name")) +
+      '</strong><span>' + escapeHtml(t("en_note")) + '</span></button></div>');
+    document.getElementById("choose-vi").onclick = function () {
+      setLanguage("vi");
+      renderConsent();
+    };
+    document.getElementById("choose-en").onclick = function () {
+      setLanguage("en");
+      renderConsent();
+    };
+  }
+
+  function renderConsent(errorMessage) {
+    var contact = isDemo() ? t("demo_contact") : (BOOT.researcher_email && BOOT.ethics_reference ?
+      t("contact", {
+        NAME: BOOT.researcher_name,
+        EMAIL: BOOT.researcher_email,
+        ETHICS: BOOT.ethics_reference
+      }) : t("contact_pilot"));
+    var inviteMissing = BOOT.require_invite && !queryValue(["invite"]);
+    var html = progressHtml(1, t("progress_consent")) +
+      '<h1>' + escapeHtml(t(isDemo() ? "demo_consent_title" : "consent_title")) + '</h1><p class="lead">' +
+      escapeHtml(t(isDemo() ? "demo_consent_lead" : "consent_lead")) + '</p>' +
+      '<p>' + t(isDemo() ? "demo_consent_body_1" : "consent_body_1", { FIXED: formatVnd(BOOT.fixed_payment_vnd), CONV: BOOT.points_per_10000_vnd }) + '</p>' +
+      '<p>' + t(isDemo() ? "demo_consent_body_2" : "consent_body_2") + '</p><p>' +
+      t(isDemo() ? "demo_consent_body_3" : "consent_body_3") + '</p><p>' +
+      t(isDemo() ? "demo_consent_body_4" : "consent_body_4") + '</p><p>' +
+      t(isDemo() ? "demo_consent_body_5" : "consent_body_5") + '</p>' +
+      '<div class="notice notice--info"><p>' + escapeHtml(t("consent_rules")) + '</p></div>' +
+      '<p class="small muted">' + escapeHtml(contact) + '</p>' +
+      (inviteMissing ? '<div class="notice notice--warning"><p>' + escapeHtml(t("invite_required")) + '</p></div>' : '') +
+      (errorMessage ? errorNotice(errorMessage) : '') +
+      '<label class="consent-item"><input id="age-check" type="checkbox"><span>' +
+      escapeHtml(t(isDemo() ? "demo_age_check" : "age_check")) + '</span></label>' +
+      '<label class="consent-item"><input id="consent-check" type="checkbox"><span>' +
+      escapeHtml(t(isDemo() ? "demo_consent_check" : "consent_check")) + '</span></label>' +
+      '<div class="action-row action-row--split"><button class="button button--secondary" id="back-language">' +
+      escapeHtml(t("back")) + '</button><button class="button button--wide" id="consent-button" disabled>' +
+      escapeHtml(t(isDemo() ? "demo_consent_button" : "consent_button")) + '</button></div>';
+    show(html);
+    var age = document.getElementById("age-check");
+    var consent = document.getElementById("consent-check");
+    var button = document.getElementById("consent-button");
+    function update() { button.disabled = !(age.checked && consent.checked) || inviteMissing; }
+    age.onchange = update;
+    consent.onchange = update;
+    document.getElementById("back-language").onclick = renderLanguage;
+    button.onclick = function () {
+      button.disabled = true;
+      button.textContent = t("loading");
+      serverCall("startSession", {
+        language: session.language,
+        consent: true,
+        age_18_plus: true,
+        invite_token: queryValue(["invite"]),
+        external_id: queryValue(["participant_id", "PROLIFIC_PID", "prolific_pid", "worker_id"]),
+        client_started_at: clientStartedAt
+      }).then(function (response) {
+        session.session_id = response.session_id;
+        session.session_token = response.session_token;
+        session.participant_code = response.participant_code;
+        session.instruction_profile = response.instruction_profile;
+        session.instruction_page = 0;
+        saveSession();
+        updateMeta();
+        renderInstructions();
+      }).catch(function (error) {
+        renderConsent(error.message || t("network_error"));
+      });
+    };
+  }
+
+  function instructionPages() {
+    var profileKey = session.instruction_profile === "mixed_only" ? "profile_mixed" :
+      (session.instruction_profile === "exact_only" ? "profile_exact" : "profile_variable");
+    return [
+      {
+        title: t("inst1_title"),
+        html: t("inst1_html", { N: BOOT.num_rounds })
+      },
+      {
+        title: t("inst2_title"),
+        html: '<p>' + escapeHtml(t("inst2_intro")) + '</p>' +
+          '<table class="rule-table"><thead><tr><th>' + escapeHtml(t("case_label")) +
+          '</th><th>' + escapeHtml(t("value_if_served")) + '</th></tr></thead><tbody>' +
+          '<tr><td>' + escapeHtml(t("type_h")) + '</td><td class="numeric">120</td></tr>' +
+          '<tr><td>' + escapeHtml(t("type_l")) + '</td><td class="numeric">30</td></tr></tbody></table>' +
+          '<p>' + t("inst2_mixed") + '</p><p>' + escapeHtml(t("inst2_wait")) + '</p>' +
+          '<div class="formula">' + escapeHtml(t("payoff_formula")) + '</div>' +
+          '<h3>' + escapeHtml(t("payoff_examples")) + '</h3><ul><li>' +
+          escapeHtml(t("example_h10")) + '</li><li>' + escapeHtml(t("example_h16")) +
+          '</li><li>' + escapeHtml(t("example_l10")) + '</li><li>' +
+          escapeHtml(t("example_mixed10")) + '</li><li>' + escapeHtml(t("example_mixed16")) +
+          '</li></ul><div class="notice"><p>' + escapeHtml(t("inst2_zero")) + '</p></div>'
+      },
+      {
+        title: t("inst3_title"),
+        html: '<p>' + escapeHtml(t("inst3_processor")) + '</p><p>' +
+          escapeHtml(t("inst3_private")) + '</p><p>' + escapeHtml(t("inst3_bots")) + '</p>' +
+          '<table class="rule-table"><thead><tr><th>' + escapeHtml(t("label_shown")) +
+          '</th><th>' + escapeHtml(t("at_10")) + '</th><th>' + escapeHtml(t("at_16")) +
+          '</th></tr></thead><tbody><tr><td>' + escapeHtml(t("type_h")) + '</td><td>' +
+          escapeHtml(t("bot_send")) + '</td><td>' + escapeHtml(t("bot_send")) +
+          '</td></tr><tr><td>' + escapeHtml(t("type_l")) + '</td><td>' +
+          escapeHtml(t("bot_not")) + '</td><td>' + escapeHtml(t("bot_not")) +
+          '</td></tr><tr><td>' + escapeHtml(t("type_mixed")) + '</td><td>' +
+          escapeHtml(t("bot_send")) + '</td><td>' + escapeHtml(t("bot_not")) +
+          '</td></tr></tbody></table>'
+      },
+      {
+        title: t("inst4_title"),
+        html: '<p>' + t(profileKey) + '</p><p>' + t("inst4_timer") + '</p><p>' +
+          t(isDemo() ? "demo_inst4_balance" : "inst4_balance", { START: BOOT.start_balance }) + '</p><div class="notice notice--info"><p>' +
+          t(isDemo() ? "demo_inst4_payment" : "inst4_payment", { FIXED: formatVnd(BOOT.fixed_payment_vnd), CONV: BOOT.points_per_10000_vnd }) +
+          '</p></div>'
+      }
+    ];
+  }
+
+  function renderInstructions() {
+    var pages = instructionPages();
+    var index = Math.max(0, Math.min(pages.length - 1, session.instruction_page));
+    var page = pages[index];
+    var dots = pages.map(function (_, dotIndex) {
+      return '<span class="' + (dotIndex === index ? 'active' : '') + '"></span>';
+    }).join("");
+    show(progressHtml(2, t("progress_instructions")) +
+      '<p class="small muted">' + escapeHtml(t("instruction_of", { CURRENT: index + 1, TOTAL: pages.length })) +
+      '</p><div class="instruction-index" aria-hidden="true">' + dots + '</div><h1>' +
+      escapeHtml(page.title) + '</h1>' + page.html + '<div class="action-row action-row--split">' +
+      (index > 0 ? '<button class="button button--secondary" id="instruction-back">' + escapeHtml(t("back")) + '</button>' : '<span></span>') +
+      '<button class="button button--wide" id="instruction-next">' +
+      escapeHtml(index === pages.length - 1 ? t("continue") : t("continue")) + '</button></div>');
+    if (index > 0) {
+      document.getElementById("instruction-back").onclick = function () {
+        session.instruction_page -= 1;
+        renderInstructions();
+      };
+    }
+    document.getElementById("instruction-next").onclick = function () {
+      if (index < pages.length - 1) {
+        session.instruction_page += 1;
+        renderInstructions();
+      } else {
+        renderQuiz([]);
+      }
+    };
+  }
+
+  function renderQuiz(incorrect, message) {
+    incorrect = incorrect || [];
+    var questions = QUIZ[session.language];
+    var blocks = questions.map(function (question, index) {
+      var number = index + 1;
+      var isIncorrect = incorrect.indexOf(number) >= 0;
+      var options = question.o.map(function (option) {
+        var checked = session.quiz_answers["q" + number] === option[0] ? " checked" : "";
+        return '<label class="option"><input type="radio" name="q' + number + '" value="' +
+          option[0] + '"' + checked + '><span><strong>' + option[0] + '.</strong> ' +
+          escapeHtml(option[1]) + '</span></label>';
+      }).join("");
+      return '<fieldset class="question ' + (isIncorrect ? 'question--incorrect' : '') +
+        '" id="question-' + number + '"><legend>' + number + '. ' + escapeHtml(question.q) +
+        '</legend>' + options + (isIncorrect ? '<div class="notice notice--error"><p><strong>' +
+        escapeHtml(t("explanation")) + ':</strong> ' + escapeHtml(question.e) + '</p></div>' : '') +
+        '</fieldset>';
+    }).join("");
+    show(progressHtml(3, t("progress_quiz")) + '<h1>' + escapeHtml(t("quiz_title")) +
+      '</h1><p class="lead">' + escapeHtml(t(isDemo() ? "demo_quiz_intro" : "quiz_intro")) + '</p>' +
+      (message ? errorNotice(message) : '') + '<form id="quiz-form">' + blocks +
+      '<div class="action-row action-row--split"><button type="button" class="button button--secondary" id="quiz-review">' +
+      escapeHtml(t("back")) + '</button><button type="submit" class="button button--wide">' +
+      escapeHtml(t("submit")) + '</button></div></form>');
+    document.getElementById("quiz-review").onclick = function () {
+      session.instruction_page = 0;
+      renderInstructions();
+    };
+    document.getElementById("quiz-form").onsubmit = function (event) {
+      event.preventDefault();
+      var answers = {};
+      var missing = false;
+      for (var i = 1; i <= questions.length; i += 1) {
+        var selected = document.querySelector('input[name="q' + i + '"]:checked');
+        if (selected) answers["q" + i] = selected.value;
+        else missing = true;
+      }
+      session.quiz_answers = answers;
+      if (missing) {
+        renderQuiz([], t("quiz_missing"));
+        return;
+      }
+      loading();
+      serverCall("checkComprehension", authPayload({ answers: answers }))
+        .then(function (response) {
+          if (!response.passed) {
+            renderQuiz(response.incorrect_questions,
+              t("quiz_incorrect", { N: response.incorrect_questions.length }));
+            return;
+          }
+          session.current_trial = response.next_trial;
+          session.quiz_answers = {};
+          renderQuizPassed();
+        }).catch(function (error) {
+          renderQuiz([], error.message || t("network_error"));
+        });
+    };
+  }
+
+  function renderQuizPassed() {
+    show(progressHtml(3, t("progress_quiz")) + '<h1>' + escapeHtml(t("quiz_title")) +
+      '</h1><div class="notice notice--success"><p>' + escapeHtml(t("quiz_passed")) +
+      '</p></div><div class="action-row"><button class="button button--wide" id="start-rounds">' +
+      escapeHtml(t("start_rounds")) + '</button></div>');
+    document.getElementById("start-rounds").onclick = renderDecision;
+  }
+
+  function caseLabel(label) {
+    if (label === "H") return t("type_h");
+    if (label === "L") return t("type_l");
+    return t("type_mixed");
+  }
+
+  function queueVisual(count) {
+    if (!count) return '<div class="queue-strip"><span class="queue-label">' +
+      escapeHtml(t("no_waiting_cases")) + '</span></div>';
+    var cases = "";
+    for (var i = 0; i < Math.min(count, 6); i += 1) {
+      cases += '<span class="queue-case" aria-hidden="true">' + (i + 1) + '</span>';
+    }
+    if (count > 6) cases += '<strong>+' + (count - 6) + '</strong>';
+    return '<div class="queue-strip"><span class="queue-label">' +
+      escapeHtml(t("queue_label")) + '</span>' + cases + '</div>';
+  }
+
+  function clearDecisionTimer() {
+    if (session.timer_id) window.clearInterval(session.timer_id);
+    session.timer_id = null;
+  }
+
+  function renderDecision() {
+    var trial = session.current_trial;
+    if (!trial) {
+      renderBeliefs();
+      return;
+    }
+    clearDecisionTimer();
+    session.decision_active = true;
+    session.decision_submitting = false;
+    session.decision_focus_losses = 0;
+    session.decision_started_ms = performance.now();
+    updateMeta(t("round") + " " + trial.round);
+    var labelText = caseLabel(trial.label);
+    var caseText = trial.label === "H" ? t("h_case_text") :
+      (trial.label === "L" ? t("l_case_text") : t("mixed_case_text"));
+    var netTitle = trial.label === "mixed" ? t("expected_net_if_served") : t("net_if_served");
+    show(progressHtml(4, t("progress_rounds")) +
+      '<div class="status-grid"><div class="status-item"><span>' + escapeHtml(t("round")) +
+      '</span><strong>' + trial.round + ' ' + escapeHtml(t("of_rounds")) + ' ' + BOOT.num_rounds +
+      '</strong></div><div class="status-item"><span>' + escapeHtml(t("current_balance")) +
+      '</span><strong>' + formatPoints(trial.current_balance) + '</strong></div><div class="status-item"><span>' +
+      escapeHtml(t("own_waiting")) + '</span><strong>' + trial.own_cases_waiting + '</strong></div></div>' +
+      '<section class="decision-surface" aria-labelledby="decision-title"><span class="case-tag">' +
+      escapeHtml(labelText) + '</span><h1 id="decision-title">' + escapeHtml(t("case_label")) +
+      ': ' + escapeHtml(labelText) + '</h1><p class="lead">' + escapeHtml(caseText) + '</p>' +
+      '<div class="decision-math"><div><span>' + escapeHtml(t("waiting_units")) + '</span><strong>' +
+      trial.waiting_units + '</strong></div><div><span>' + escapeHtml(t("waiting_charge")) +
+      '</span><strong>' + trial.waiting_charge + '</strong></div><div><span>' +
+      escapeHtml(t("displayed_value")) + '</span><strong>' + trial.displayed_value + '</strong></div><div><span>' +
+      escapeHtml(netTitle) + '</span><strong>' + trial.displayed_net_if_served + '</strong></div></div>' +
+      queueVisual(trial.own_cases_waiting) + '<h2>' + escapeHtml(t("choose_action")) + '</h2>' +
+      '<div id="decision-error"></div><div class="decision-actions"><button class="button" id="send-button">' +
+      escapeHtml(t("send")) + '</button><button class="button button--secondary" id="not-button">' +
+      escapeHtml(t("not_send")) + '</button></div><div class="timer-line"><span>' +
+      escapeHtml(t("time_remaining")) + ': </span><strong id="timer-value">' +
+      BOOT.decision_timeout_seconds + '</strong> s<br><span class="small">' +
+      escapeHtml(t("timeout_default")) + '</span></div></section>');
+
+    var remaining = BOOT.decision_timeout_seconds;
+    session.timer_id = window.setInterval(function () {
+      remaining -= 1;
+      var timer = document.getElementById("timer-value");
+      if (timer) timer.textContent = Math.max(0, remaining);
+      if (remaining <= 0) {
+        clearDecisionTimer();
+        submitDecision("not_send", true);
+      }
+    }, 1000);
+    document.getElementById("send-button").onclick = function () { submitDecision("send", false); };
+    document.getElementById("not-button").onclick = function () { submitDecision("not_send", false); };
+  }
+
+  function submitDecision(decision, timedOut) {
+    if (session.decision_submitting) return;
+    session.decision_submitting = true;
+    clearDecisionTimer();
+    var sendButton = document.getElementById("send-button");
+    var notButton = document.getElementById("not-button");
+    if (sendButton) sendButton.disabled = true;
+    if (notButton) notButton.disabled = true;
+    var errorBox = document.getElementById("decision-error");
+    if (errorBox) errorBox.innerHTML = '<div class="notice notice--info"><p>' +
+      escapeHtml(t("submitting_decision")) + '</p></div>';
+    var payload = authPayload({
+      round: session.current_trial.round,
+      decision: decision,
+      timed_out: Boolean(timedOut),
+      rt_ms: Math.round(performance.now() - session.decision_started_ms),
+      focus_losses: session.decision_focus_losses
+    });
+    serverCall("submitDecision", payload).then(function (response) {
+      session.decision_active = false;
+      session.decision_submitting = false;
+      session.current_trial = response.next_trial;
+      renderRoundSummary(response);
+    }).catch(function (error) {
+      session.decision_submitting = false;
+      if (sendButton) sendButton.disabled = false;
+      if (notButton) notButton.disabled = false;
+      if (errorBox) {
+        errorBox.innerHTML = errorNotice(error.message || t("network_error")) +
+          '<button class="button button--secondary" id="retry-decision">' + escapeHtml(t("retry")) + '</button>';
+        document.getElementById("retry-decision").onclick = function () {
+          submitDecision(decision, timedOut);
+        };
+      }
+    });
+  }
+
+  function renderRoundSummary(receipt) {
+    clearDecisionTimer();
+    if (session.summary_timer_id) window.clearInterval(session.summary_timer_id);
+    updateMeta(t("round") + " " + receipt.round);
+    var sent = receipt.decision === "send" ? 1 : 0;
+    var html = progressHtml(4, t("progress_rounds")) + '<h1>' +
+      escapeHtml(t("round_summary", { ROUND: receipt.round })) + '</h1>' +
+      (receipt.timed_out ? '<div class="notice notice--warning"><p>' + escapeHtml(t("timed_out_note")) + '</p></div>' : '') +
+      '<div class="result-grid"><div>' + escapeHtml(t("sent_this_round")) + '</div><div class="value">' + sent +
+      '</div><div>' + escapeHtml(t("served_this_round")) + '</div><div class="value">' + receipt.own_cases_served +
+      '</div><div>' + escapeHtml(t("points_this_round")) + '</div><div class="value">' +
+      formatPoints(receipt.own_points_this_round) + '</div><div>' + escapeHtml(t("waiting_after")) +
+      '</div><div class="value">' + receipt.own_cases_waiting + '</div><div class="total">' +
+      escapeHtml(t("balance_after")) + '</div><div class="value total">' + formatPoints(receipt.balance_after) +
+      '</div></div><div class="action-row"><button class="button button--wide" id="summary-next">' +
+      escapeHtml(receipt.next_trial ? t("next_round") : t("next_section")) + '</button></div>' +
+      '<p class="center small muted" id="summary-countdown"></p>';
+    show(html);
+    var seconds = BOOT.summary_timeout_seconds;
+    var advanced = false;
+    function advance() {
+      if (advanced) return;
+      advanced = true;
+      if (session.summary_timer_id) window.clearInterval(session.summary_timer_id);
+      session.summary_timer_id = null;
+      if (receipt.next_trial) renderDecision(); else renderBeliefs();
+    }
+    document.getElementById("summary-next").onclick = advance;
+    function updateCountdown() {
+      var element = document.getElementById("summary-countdown");
+      if (element) element.textContent = t("auto_continue", { SECONDS: seconds });
+    }
+    updateCountdown();
+    session.summary_timer_id = window.setInterval(function () {
+      seconds -= 1;
+      updateCountdown();
+      if (seconds <= 0) advance();
+    }, 1000);
+  }
+
+  function renderBeliefs(errorMessage, previousValues) {
+    var previousH = previousValues && Number.isInteger(previousValues.belief_h) ? previousValues.belief_h : "";
+    var previousServed = previousValues && Number.isInteger(previousValues.belief_total_served) ? previousValues.belief_total_served : "";
+    session.decision_active = false;
+    updateMeta();
+    show(progressHtml(5, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_beliefs_title" : "beliefs_title")) +
+      '</h1><p class="lead">' + escapeHtml(t(isDemo() ? "demo_beliefs_intro" : "beliefs_intro", { MAX: BOOT.belief_max_points })) + '</p>' +
+      (errorMessage ? errorNotice(errorMessage) : '') + '<form id="belief-form"><label class="field-label" for="belief-h">' +
+      escapeHtml(t("belief_h")) + '</label><input id="belief-h" type="number" min="0" max="20" step="1" value="' +
+      escapeHtml(previousH) + '" required>' +
+      '<p class="small muted">' + escapeHtml(t("belief_range_h")) + '</p><label class="field-label" for="belief-served">' +
+      escapeHtml(t("belief_served")) + '</label><input id="belief-served" type="number" min="0" max="80" step="1" value="' +
+      escapeHtml(previousServed) + '" required>' +
+      '<p class="small muted">' + escapeHtml(t("belief_range_served")) + '</p><div class="formula">max(0, ' +
+      BOOT.belief_max_points + ' − |estimate − true number|)</div><div class="action-row"><button class="button button--wide" type="submit">' +
+      escapeHtml(t("submit")) + '</button></div></form>');
+    document.getElementById("belief-form").onsubmit = function (event) {
+      event.preventDefault();
+      var beliefH = Number(document.getElementById("belief-h").value);
+      var beliefServed = Number(document.getElementById("belief-served").value);
+      if (!Number.isInteger(beliefH) || beliefH < 0 || beliefH > 20 ||
+          !Number.isInteger(beliefServed) || beliefServed < 0 || beliefServed > 80) {
+        renderBeliefs(t("beliefs_error"), {
+          belief_h: beliefH,
+          belief_total_served: beliefServed
+        });
+        return;
+      }
+      loading();
+      serverCall("submitBeliefs", authPayload({
+        belief_h: beliefH,
+        belief_total_served: beliefServed
+      })).then(function (response) {
+        session.results = response.results;
+        renderResults();
+      }).catch(function (error) {
+        renderBeliefs(error.message || t("network_error"), {
+          belief_h: beliefH,
+          belief_total_served: beliefServed
+        });
+      });
+    };
+  }
+
+  function resultsHtml(results) {
+    return '<div class="result-grid"><div>' + escapeHtml(t("starting_balance")) +
+      '</div><div class="value">' + formatPoints(results.starting_balance) + '</div><div>' +
+      escapeHtml(t("case_points")) + '</div><div class="value">' + formatPoints(results.case_points) +
+      '</div><div>' + escapeHtml(t("balance_cases")) + '</div><div class="value">' +
+      formatPoints(results.balance_after_cases) + '</div><div>' + escapeHtml(t("belief_points")) +
+      '</div><div class="value">' + formatPoints(results.belief_points) + '</div><div class="total">' +
+      escapeHtml(t("total_points")) + '</div><div class="value total">' + formatPoints(results.total_points) +
+      '</div><div>' + escapeHtml(t(isDemo() ? "demo_bonus_payment" : "bonus_payment")) + '</div><div class="value">' +
+      formatVnd(results.bonus_vnd) + ' VND</div><div>' + escapeHtml(t(isDemo() ? "demo_fixed_payment" : "fixed_payment")) +
+      '</div><div class="value">' + formatVnd(results.fixed_payment_vnd) + ' VND</div><div class="total">' +
+      escapeHtml(t(isDemo() ? "demo_total_payment" : "total_payment")) + '</div><div class="value total">' +
+      formatVnd(results.total_payment_vnd) + ' VND</div></div>';
+  }
+
+  function renderResults() {
+    show(progressHtml(5, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_results_title" : "results_title")) +
+      '</h1>' + resultsHtml(session.results) + '<div class="notice"><p>' +
+      escapeHtml(t(isDemo() ? "demo_negative_floor" : "negative_floor")) + '</p></div><div class="action-row"><button class="button button--wide" id="to-survey">' +
+      escapeHtml(t("to_survey")) + '</button></div>');
+    document.getElementById("to-survey").onclick = function () {
+      renderQuestionnaire();
+    };
+  }
+
+  function likert(name) {
+    var html = '<div class="likert-row">';
+    for (var i = 1; i <= 7; i += 1) {
+      html += '<label><input type="radio" name="' + name + '" value="' + i + '"><span>' + i + '</span></label>';
+    }
+    return html + '</div>';
+  }
+
+  function optionalSelect(id, options) {
+    var html = '<select id="' + id + '"><option value="">' + escapeHtml(t("choose_optional")) + '</option>';
+    options.forEach(function (option) {
+      html += '<option value="' + option[0] + '">' + escapeHtml(option[1]) + '</option>';
+    });
+    return html + '</select>';
+  }
+
+  function renderQuestionnaire(errorMessage) {
+    show(progressHtml(6, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
+      '</h1><p class="lead">' + escapeHtml(t(isDemo() ? "demo_survey_intro" : "survey_intro")) + '</p>' +
+      (errorMessage ? errorNotice(errorMessage) : '') + '<form id="survey-form">' +
+      '<fieldset class="question"><legend>' + escapeHtml(t("label_difficulty")) + '</legend><p class="small muted">' +
+      escapeHtml(t("scale_easy")) + '</p>' + likert("label_difficulty") + '</fieldset>' +
+      '<fieldset class="question"><legend>' + escapeHtml(t("label_effect")) + '</legend><p class="small muted">' +
+      escapeHtml(t("scale_none")) + '</p>' + likert("label_effect") + '</fieldset>' +
+      '<fieldset class="question"><legend>' + escapeHtml(t("waiting_effect")) + '</legend><p class="small muted">' +
+      escapeHtml(t("scale_none")) + '</p>' + likert("waiting_effect") + '</fieldset>' +
+      '<fieldset class="question"><legend>' + escapeHtml(t("attention_check")) + '</legend>' + likert("attention_check") + '</fieldset>' +
+      '<label class="field-label" for="understood">' + escapeHtml(t("understood")) + '</label>' +
+      optionalSelect("understood", [["yes", t("yes")], ["no", t("no")], ["unsure", t("unsure")]]) +
+      '<label class="field-label" for="believed">' + escapeHtml(t("believed")) + '</label>' +
+      optionalSelect("believed", [["yes", t("yes")], ["no", t("no")], ["unsure", t("unsure")]]) +
+      '<label class="field-label" for="strategy">' + escapeHtml(t("strategy")) + ' <span class="muted">(' + escapeHtml(t("optional")) + ')</span></label>' +
+      '<textarea id="strategy" maxlength="2000"></textarea><label class="field-label" for="confusing">' +
+      escapeHtml(t("confusing")) + ' <span class="muted">(' + escapeHtml(t("optional")) + ')</span></label>' +
+      '<textarea id="confusing" maxlength="2000"></textarea><h2>' + escapeHtml(t("about_you")) + '</h2>' +
+      '<label class="field-label" for="age">' + escapeHtml(t("age")) + ' <span class="muted">(' + escapeHtml(t("optional")) + ')</span></label>' +
+      '<input id="age" type="number" min="18" max="99" step="1"><label class="field-label" for="gender">' +
+      escapeHtml(t("gender")) + '</label>' + optionalSelect("gender", [["female", t("female")], ["male", t("male")], ["nonbinary", t("nonbinary")], ["other", t("other")], ["prefer_not", t("prefer_not")]]) +
+      '<label class="field-label" for="field">' + escapeHtml(t("field")) + '</label>' + optionalSelect("field", [["econ_business", t("econ_business")], ["stem", t("stem")], ["social_science", t("social_science")], ["humanities", t("humanities")], ["other", t("other")], ["prefer_not", t("prefer_not")]]) +
+      '<label class="field-label" for="year">' + escapeHtml(t("year")) + '</label>' + optionalSelect("year", [["1", t("year_1")], ["2", t("year_2")], ["3", t("year_3")], ["4", t("year_4")], ["5_plus", t("year_5")], ["prefer_not", t("prefer_not")]]) +
+      '<label class="field-label" for="prior">' + escapeHtml(t("prior")) + '</label>' + optionalSelect("prior", [["yes", t("yes")], ["no", t("no")], ["unsure", t("unsure")]]) +
+      '<label class="field-label" for="risk">' + escapeHtml(t("risk")) + '</label><input id="risk" type="number" min="0" max="10" step="1">' +
+      '<label class="field-label" for="patience">' + escapeHtml(t("patience")) + '</label><input id="patience" type="number" min="0" max="10" step="1">' +
+      '<div class="action-row"><button class="button button--wide" type="submit">' + escapeHtml(t("finish")) + '</button></div></form>');
+    document.getElementById("survey-form").onsubmit = function (event) {
+      event.preventDefault();
+      var getRadioValue = function (name) {
+        var selected = document.querySelector('input[name="' + name + '"]:checked');
+        return selected ? selected.value : "";
+      };
+      var questionnaire = {
+        label_difficulty: getRadioValue("label_difficulty"),
+        label_effect: getRadioValue("label_effect"),
+        waiting_effect: getRadioValue("waiting_effect"),
+        attention_check: getRadioValue("attention_check"),
+        understood: document.getElementById("understood").value,
+        believed: document.getElementById("believed").value,
+        strategy: document.getElementById("strategy").value,
+        confusing: document.getElementById("confusing").value,
+        age: document.getElementById("age").value,
+        gender: document.getElementById("gender").value,
+        field: document.getElementById("field").value,
+        year: document.getElementById("year").value,
+        prior_experiments: document.getElementById("prior").value,
+        gps_risk: document.getElementById("risk").value,
+        gps_patience: document.getElementById("patience").value
+      };
+      var elapsed = Math.max(0, Math.round((Date.now() - new Date(clientStartedAt).getTime()) / 1000));
+      var viewportClass = window.innerWidth < 680 ? "small" : (window.innerWidth < 1100 ? "medium" : "large");
+      submitQuestionnairePayload({
+        questionnaire: questionnaire,
+        client_meta: {
+          elapsed_seconds: elapsed,
+          viewport_class: viewportClass,
+          timezone_offset_minutes: new Date().getTimezoneOffset()
+        }
+      });
+    };
+  }
+
+  function submitQuestionnairePayload(payload) {
+    loading();
+    serverCall("submitQuestionnaire", authPayload(payload)).then(function (response) {
+        session.results = response.results;
+        renderDebrief({
+          language: session.language,
+          participant_code: response.participant_code,
+          completion_code: response.completion_code,
+          results: response.results
+        }, true);
+      }).catch(function (error) {
+        renderQuestionnaireRetry(payload, error.message || t("network_error"));
+      });
+  }
+
+  function renderQuestionnaireRetry(payload, errorMessage) {
+    show(progressHtml(6, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
+      '</h1>' + errorNotice(errorMessage) + '<p class="lead">' + escapeHtml(t("final_retry_body")) +
+      '</p><div class="action-row"><button class="button button--wide" id="retry-final">' +
+      escapeHtml(t("retry")) + '</button></div>');
+    document.getElementById("retry-final").onclick = function () {
+      submitQuestionnairePayload(payload);
+    };
+  }
+
+  function renderDebrief(completion, newlyCompleted) {
+    setLanguage(completion.language || session.language);
+    session.participant_code = completion.participant_code || session.participant_code;
+    session.results = completion.results;
+    updateMeta();
+    if (newlyCompleted) {
+      sessionStorage.setItem(COMPLETION_KEY, JSON.stringify(completion));
+      clearActiveSession();
+    }
+    var results = completion.results || {};
+    show(progressHtml(7, t("progress_done")) + '<h1>' + escapeHtml(t("debrief_title")) +
+      '</h1><div class="notice notice--success"><p><strong>' + escapeHtml(t(isDemo() ? "demo_confirmed" : "confirmed")) +
+      '</strong></p></div><p>' + escapeHtml(t(isDemo() ? "demo_completion_label" : "completion_label")) + ':</p><div class="completion-code" id="completion-code">' +
+      escapeHtml(completion.completion_code) + '</div><p class="center">' + escapeHtml(t(isDemo() ? "demo_keep_code" : "keep_code")) +
+      '</p><div class="action-row"><button class="button button--secondary" id="copy-code">' +
+      escapeHtml(t("copy_code")) + '</button></div><div id="copy-status" class="center small muted"></div>' +
+      '<h2>' + escapeHtml(t(isDemo() ? "demo_results_title" : "results_title")) + '</h2>' + resultsHtml(results) +
+      '<div class="notice notice--info"><p>' + escapeHtml(t(isDemo() ? "demo_payment_confirm" : "payment_confirm", {
+        FIXED: formatVnd(results.fixed_payment_vnd),
+        BONUS: formatVnd(results.bonus_vnd),
+        TOTAL: formatVnd(results.total_payment_vnd)
+      })) + '</p></div><h2>' + escapeHtml(t("debrief_heading")) + '</h2><p>' + escapeHtml(t("debrief_1")) +
+      '</p><p>' + escapeHtml(t("debrief_2")) + '</p><p>' + escapeHtml(t("debrief_3")) +
+      '</p><p>' + escapeHtml(t("debrief_4")) + '</p>' +
+      (isDemo() ? '<div class="action-row"><button class="button button--secondary" id="restart-demo">' +
+        escapeHtml(t("restart_demo")) + '</button></div>' : ''));
+    document.getElementById("copy-code").onclick = function () {
+      var code = completion.completion_code;
+      var status = document.getElementById("copy-status");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function () {
+          status.textContent = t("copied");
+        });
+      } else {
+        status.textContent = code;
+      }
+    };
+    if (isDemo()) {
+      document.getElementById("restart-demo").onclick = function () {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem("queue-public-demo-engine::" + (BOOT.study_version || "v1"));
+        localStorage.removeItem("queue-public-demo-seed::" + (BOOT.study_version || "v1"));
+        sessionStorage.removeItem(COMPLETION_KEY);
+        window.location.assign(window.location.pathname + "?reset=1");
+      };
+    }
+  }
+
+  function renderRecovery(stored, errorMessage) {
+    setLanguage(stored.language || session.language);
+    show('<h1>' + escapeHtml(t(isDemo() ? "demo_recovery_title" : "recovery_title")) + '</h1><p class="lead">' +
+      escapeHtml(t(isDemo() ? "demo_recovery_body" : "recovery_body", { CODE: stored.participant_code || "" })) + '</p>' +
+      (errorMessage ? errorNotice(errorMessage) : '') + '<div class="action-row action-row--split">' +
+      '<button class="button button--secondary" id="clear-session">' + escapeHtml(t("clear_local")) +
+      '</button><button class="button button--wide" id="resume-session">' + escapeHtml(t(isDemo() ? "demo_resume" : "resume")) +
+      '</button></div>');
+    document.getElementById("clear-session").onclick = function () {
+      localStorage.removeItem(STORAGE_KEY);
+      renderLanguage();
+    };
+    document.getElementById("resume-session").onclick = function () {
+      loading();
+      session.session_id = stored.session_id;
+      session.session_token = stored.session_token;
+      session.participant_code = stored.participant_code;
+      clientStartedAt = stored.started_at || clientStartedAt;
+      serverCall("resumeSession", authPayload()).then(function (response) {
+        session.participant_code = response.participant_code;
+        session.instruction_profile = response.instruction_profile;
+        session.current_trial = response.next_trial || null;
+        session.results = response.results || null;
+        saveSession();
+        routeServerState(response);
+      }).catch(function () {
+        renderRecovery(stored, t("resume_error"));
+      });
+    };
+  }
+
+  function routeServerState(response) {
+    updateMeta();
+    if (response.status === "instructions") {
+      session.instruction_page = 0;
+      renderInstructions();
+    } else if (response.status === "rounds") {
+      session.current_trial = response.next_trial;
+      renderDecision();
+    } else if (response.status === "beliefs") {
+      renderBeliefs();
+    } else if (response.status === "questionnaire") {
+      session.results = response.results;
+      renderResults();
+    } else if (response.status === "complete") {
+      renderDebrief({
+        language: response.language || session.language,
+        participant_code: response.participant_code,
+        completion_code: response.completion_code,
+        results: response.results
+      }, true);
+    } else {
+      renderInstructions();
+    }
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (session.decision_active && document.hidden) session.decision_focus_losses += 1;
+  });
+
+  window.addEventListener("beforeunload", function (event) {
+    if (!session.session_id || !session.decision_active) return;
+    event.preventDefault();
+    event.returnValue = t(isDemo() ? "demo_leave_warning" : "leave_warning");
+  });
+
+  function start() {
+    setLanguage(session.language);
+    var completion = sessionStorage.getItem(COMPLETION_KEY);
+    if (completion) {
+      try {
+        renderDebrief(JSON.parse(completion), false);
+        return;
+      } catch (ignoredCompletion) {
+        sessionStorage.removeItem(COMPLETION_KEY);
+      }
+    }
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        renderRecovery(JSON.parse(stored));
+        return;
+      } catch (ignoredSession) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+    renderLanguage();
+  }
+
+  start();
+})();
+</script>
+
+</body>
+</html>
