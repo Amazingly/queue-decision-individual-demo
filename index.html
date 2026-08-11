@@ -241,6 +241,37 @@
   }
   .instruction-index .active { background: var(--accent); }
 
+  .round-timeline {
+    margin: 18px 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: round-step;
+    border-top: 1px solid var(--line);
+  }
+  .round-timeline li {
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    counter-increment: round-step;
+  }
+  .round-timeline li::before {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 50%;
+    content: counter(round-step);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
   .rule-table {
     width: 100%;
     margin: 16px 0 20px;
@@ -336,6 +367,20 @@
     border-top: 4px solid var(--accent);
     padding-top: 24px;
   }
+  .practice-surface {
+    margin-top: 22px;
+    padding-top: 24px;
+    border-top: 4px solid var(--gold);
+  }
+  .practice-surface h2 { font-size: 20px; }
+  .practice-action--selected,
+  .practice-action--selected.button--secondary {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  #practice-choice-status { min-height: 22px; margin: 8px 0 0; }
   .case-tag {
     display: inline-block;
     min-width: 132px;
@@ -398,6 +443,23 @@
     font-variant-numeric: tabular-nums;
   }
   .timer-line strong { color: var(--gold); }
+
+  .rule-reference {
+    margin: 20px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .rule-reference summary {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 750;
+  }
+  .rule-reference__body { padding: 4px 0 14px; }
+  .rule-reference__body h3 { font-size: 16px; }
+  .rule-reference__body .rule-table { font-size: 14px; }
 
   .result-grid {
     display: grid;
@@ -494,7 +556,7 @@
     <div class="fatal-message">This experiment requires JavaScript.</div>
   </noscript>
   <script>
-    window.QUEUE_BOOT = {"study_id":"queue_individual_market_demo","study_version":"1.0.0-public-demo","protocol_version":"2026-08-11","mode":"PILOT","demo_mode":true,"default_language":"vi","researcher_name":"","researcher_email":"","ethics_reference":"","require_invite":false,"fixed_payment_vnd":50000,"points_per_10000_vnd":100,"start_balance":300,"num_rounds":20,"num_customers":4,"num_computer_customers":3,"h_value":120,"l_value":30,"mixed_h_probability":0.4,"mixed_expected_value":66,"waiting_charge_per_unit":5,"wait_units_low":10,"wait_units_high":16,"decision_timeout_seconds":60,"summary_timeout_seconds":45,"belief_max_points":10,"max_total_served":80};
+    window.QUEUE_BOOT = {"study_id":"queue_individual_market_demo","study_version":"1.1.0-public-demo","protocol_version":"2026-08-11.2","mode":"PILOT","demo_mode":true,"default_language":"vi","researcher_name":"","researcher_email":"","ethics_reference":"","require_invite":false,"fixed_payment_vnd":50000,"points_per_10000_vnd":100,"start_balance":300,"num_rounds":20,"num_customers":4,"num_computer_customers":3,"h_value":120,"l_value":30,"mixed_h_probability":0.4,"mixed_expected_value":66,"waiting_charge_per_unit":5,"wait_units_low":10,"wait_units_high":16,"decision_timeout_seconds":60,"summary_timeout_seconds":45,"belief_max_points":10,"max_total_served":80};
   </script>
   <script>window.DEMO_CONFIG={"FIXED_PAYMENT_VND":50000,"POINTS_PER_10000_VND":100,"START_BALANCE":300,"NUM_ROUNDS":20,"NUM_CUSTOMERS":4,"NUM_COMPUTER_CUSTOMERS":3,"NUM_H_CASES":8,"NUM_LOW_WAIT_ROUNDS":10,"H_VALUE":120,"L_VALUE":30,"MIXED_H_PROBABILITY":0.4,"MIXED_EXPECTED_VALUE":66,"WAITING_CHARGE_PER_UNIT":5,"WAIT_UNITS_LOW":10,"WAIT_UNITS_HIGH":16,"FRESH_BACKLOG_THRESHOLD":2,"FRESH_CAPACITY":3,"BUSY_CAPACITY":2,"BELIEF_MAX_POINTS":10,"MAX_TOTAL_SERVED":80,"TREATMENTS":["mixed","fine","state_dependent"]};</script>
 <script>/**
@@ -591,6 +653,8 @@ function engineInitialState_(seed, treatment, config) {
     round_receipts: {},
     comprehension_passed: false,
     comprehension_attempts: [],
+    practice_completed: false,
+    practice_attempts: [],
     beliefs: null,
     questionnaire: null,
     completed: false
@@ -677,6 +741,7 @@ function engineProcessRound_(stateInput, decisionInput, config) {
   var decision = decisionInput.decision;
 
   if (!state.comprehension_passed) throw new Error("Comprehension not passed");
+  if (!state.practice_completed) throw new Error("Practice not completed");
   if (state.completed) throw new Error("Study already completed");
   if (["send", "not_send"].indexOf(decision) === -1) {
     throw new Error("Invalid decision");
@@ -948,9 +1013,11 @@ function engineInstructionProfile_(treatment) {
       base.results = engineResults_(state, config);
     } else if (state.next_round > config.NUM_ROUNDS) {
       base.status = "beliefs";
-    } else if (state.comprehension_passed) {
+    } else if (state.comprehension_passed && state.practice_completed) {
       base.status = "rounds";
       base.next_trial = enginePublicTrial_(state, config);
+    } else if (state.comprehension_passed) {
+      base.status = "practice";
     } else {
       base.status = "instructions";
     }
@@ -1000,7 +1067,35 @@ function engineInstructionProfile_(treatment) {
         passed: incorrect.length === 0,
         incorrect_questions: incorrect,
         attempt_number: 1,
-        next_trial: incorrect.length ? null : enginePublicTrial_(state, config)
+        practice_required: incorrect.length === 0,
+        next_trial: null
+      };
+    }
+    if (method === "completePractice") {
+      state.practice_attempts = state.practice_attempts || [];
+      if (state.practice_completed) {
+        return {
+          passed: true,
+          attempt_number: state.practice_attempts.length,
+          correct_payoff: 70,
+          next_trial: enginePublicTrial_(state, config)
+        };
+      }
+      var calculation = Number(payload.calculation_answer);
+      var correct = Number.isInteger(calculation) && calculation === 70;
+      state.practice_attempts.push({
+        attempt: state.practice_attempts.length + 1,
+        practice_choice: payload.practice_choice,
+        calculation_answer: calculation,
+        calculation_correct: correct
+      });
+      state.practice_completed = correct;
+      saveState(state);
+      return {
+        passed: correct,
+        attempt_number: state.practice_attempts.length,
+        correct_payoff: 70,
+        next_trial: correct ? enginePublicTrial_(state, config) : null
       };
     }
     if (method === "submitDecision") {
@@ -1049,7 +1144,7 @@ function engineInstructionProfile_(treatment) {
     return this;
   };
 
-  ["startSession", "resumeSession", "checkComprehension", "submitDecision", "submitBeliefs", "submitQuestionnaire"]
+  ["startSession", "resumeSession", "checkComprehension", "completePractice", "submitDecision", "submitBeliefs", "submitQuestionnaire"]
     .forEach(function (method) {
       Runner.prototype[method] = function (payload) {
         var success = this.success;
@@ -1086,6 +1181,7 @@ function engineInstructionProfile_(treatment) {
     results: null,
     instruction_page: 0,
     quiz_answers: {},
+    practice_choice: "",
     decision_active: false,
     decision_submitting: false,
     decision_started_ms: 0,
@@ -1112,6 +1208,7 @@ function engineInstructionProfile_(treatment) {
       progress_consent: "Đồng ý tham gia",
       progress_instructions: "Hướng dẫn",
       progress_quiz: "Kiểm tra hiểu",
+      progress_practice: "Luyện tập",
       progress_rounds: "Vòng quyết định",
       progress_beliefs: "Ước đoán",
       progress_survey: "Bảng hỏi",
@@ -1175,6 +1272,14 @@ function engineInstructionProfile_(treatment) {
       at_16: "16 đơn vị chờ",
       bot_send: "Gửi",
       bot_not: "Không gửi",
+      timeline_title: "Trình tự của một vòng",
+      timeline_intro: "Mỗi vòng diễn ra theo cùng một trình tự. Các bước dưới đây chỉ mô tả thời điểm thông tin và hành động xuất hiện.",
+      timeline_1: "Màn hình hiển thị nhãn hồ sơ, đơn vị chờ và các giá trị liên quan.",
+      timeline_2: "Bạn chọn Gửi vào hàng chờ hoặc Không gửi.",
+      timeline_3: "Ba khách hàng máy tính áp dụng các quy tắc cố định đã mô tả.",
+      timeline_4: "Bộ xử lý phục vụ các hồ sơ trong hàng chờ theo quy tắc đã mô tả.",
+      timeline_5: "Màn hình hiển thị tóm tắt vòng; sau đó vòng tiếp theo bắt đầu.",
+      timeline_note: "Quyết định của bạn chỉ áp dụng cho hồ sơ hiện tại. Hồ sơ đã gửi nhưng chưa được xử lý vẫn nằm trong hàng chờ.",
       inst4_title: "Thông tin trên màn hình và thanh toán",
       profile_mixed: "Trong các vòng quyết định, hồ sơ của bạn được hiển thị là <strong>Hồ sơ hỗn hợp</strong>. Mỗi hồ sơ đó có xác suất 40% là loại H và 60% là loại L.",
       profile_exact: "Trong các vòng quyết định, màn hình cho biết chính xác hồ sơ của bạn là <strong>loại H</strong> hay <strong>loại L</strong>.",
@@ -1184,6 +1289,13 @@ function engineInstructionProfile_(treatment) {
       demo_inst4_balance: "Bạn bắt đầu bản trình diễn với <strong>{START} điểm</strong>. Điểm từ hồ sơ được cộng hoặc trừ vào số dư minh họa. Sau 20 vòng, hai câu ước đoán được chấm bằng điểm giả định.",
       inst4_payment: "Tiền thanh toán cuối cùng bằng {FIXED} VND tiền tham gia cố định cộng với tiền thưởng. Tỷ lệ là {CONV} điểm = 10.000 VND. Bảng hỏi cuối không làm thay đổi thu nhập.",
       demo_inst4_payment: "Trong bản trình diễn, màn hình minh họa khoản cố định {FIXED} VND và tiền thưởng theo tỷ lệ {CONV} điểm = 10.000 VND. Không có khoản tiền thực tế nào được trả.",
+      checklist_title: "Trước mỗi quyết định",
+      checklist_intro: "Bạn có thể dùng cùng một trình tự kiểm tra trong mọi vòng:",
+      checklist_1: "Đọc nhãn hồ sơ được hiển thị.",
+      checklist_2: "Đọc số đơn vị chờ.",
+      checklist_3: "Kiểm tra giá trị và điểm nếu được xử lý hiển thị trên màn hình.",
+      checklist_4: "Chọn một trong hai phương án trước khi hết giờ.",
+      rule_available: "Trong các vòng, bạn có thể mở mục Xem lại quy tắc chính ở cuối màn hình quyết định. Đồng hồ vẫn tiếp tục chạy khi mục này mở.",
       quiz_title: "Kiểm tra hiểu quy tắc",
       quiz_intro: "Bạn phải trả lời đúng tất cả câu hỏi trước khi các vòng có trả thưởng bắt đầu. Nếu có câu chưa đúng, bạn sẽ thấy phần cần xem lại và có thể thử lại.",
       demo_quiz_intro: "Bạn phải trả lời đúng tất cả câu hỏi trước khi các vòng trình diễn bắt đầu. Nếu có câu chưa đúng, bạn sẽ thấy phần cần xem lại và có thể thử lại.",
@@ -1192,7 +1304,24 @@ function engineInstructionProfile_(treatment) {
       quiz_passed: "Bạn đã trả lời đúng tất cả câu hỏi.",
       your_answer: "Bạn chọn",
       explanation: "Giải thích",
+      start_practice: "Tiếp tục đến phần luyện tập",
+      practice_title: "Luyện tập không tính điểm",
+      practice_intro: "Phần luyện tập này giúp bạn làm quen với màn hình quyết định. Lựa chọn và phép tính ở đây không làm thay đổi số dư, tiền thưởng hoặc kết quả của các vòng quyết định.",
+      demo_practice_intro: "Phần luyện tập này giúp bạn làm quen với màn hình. Không có dữ liệu nào được gửi đi và không có thanh toán thực tế.",
+      practice_no_strategy: "Không có phương án hành động đúng hay sai trong phần luyện tập, và màn hình sẽ không đánh giá lựa chọn Gửi hay Không gửi. Chỉ phép tính điểm có một đáp án đúng.",
+      practice_case_note: "Tình huống luyện tập chung: Hồ sơ loại H, 10 đơn vị chờ.",
+      practice_action_prompt: "Bước 1. Chọn một phương án để làm quen với nút quyết định.",
+      practice_choice_made: "Đã chọn: {CHOICE}. Bạn có thể đổi lựa chọn trước khi gửi phần luyện tập.",
+      practice_calc_prompt: "Bước 2. Nếu hồ sơ loại H này được xử lý, điểm từ hồ sơ là bao nhiêu?",
+      practice_calc_hint: "Nhập một số nguyên. Hãy dùng quy tắc: giá trị hồ sơ − 5 × đơn vị chờ.",
+      practice_submit: "Kiểm tra phần luyện tập",
+      practice_missing_choice: "Vui lòng chọn Gửi vào hàng chờ hoặc Không gửi cho tình huống luyện tập.",
+      practice_missing_calc: "Vui lòng nhập một số nguyên cho phép tính điểm.",
+      practice_incorrect: "Phép tính chưa đúng. Hãy xem lại giá trị hồ sơ, chi phí chờ và thử lại. Lựa chọn hành động của bạn không bị đánh giá.",
+      practice_correct: "Phép tính đúng: 120 − 5×10 = 70 điểm. Hồ sơ luyện tập không được đưa vào hàng chờ và không làm thay đổi số dư của bạn.",
+      demo_practice_correct: "Phép tính đúng: 120 − 5×10 = 70 điểm. Hồ sơ luyện tập chỉ tồn tại trong trình duyệt và không làm thay đổi số dư minh họa.",
       start_rounds: "Bắt đầu vòng 1",
+      demo_start_rounds: "Bắt đầu vòng trình diễn 1",
       round: "Vòng",
       of_rounds: "trên",
       current_balance: "Số điểm hiện tại",
@@ -1211,6 +1340,8 @@ function engineInstructionProfile_(treatment) {
       not_send: "Không gửi",
       time_remaining: "Thời gian còn lại",
       timeout_default: "Nếu hết thời gian, máy tính ghi nhận Không gửi.",
+      review_rules: "Xem lại quy tắc chính",
+      rule_reference_intro: "Phần này chỉ nhắc lại các quy tắc đã nêu trong hướng dẫn; nó không đưa ra khuyến nghị về lựa chọn.",
       no_waiting_cases: "Không có hồ sơ nào của bạn đang chờ.",
       queue_label: "Hồ sơ của bạn đang chờ:",
       submitting_decision: "Đang xác nhận quyết định với máy chủ...",
@@ -1335,6 +1466,7 @@ function engineInstructionProfile_(treatment) {
       progress_consent: "Consent",
       progress_instructions: "Instructions",
       progress_quiz: "Comprehension",
+      progress_practice: "Practice",
       progress_rounds: "Decision rounds",
       progress_beliefs: "Estimates",
       progress_survey: "Questionnaire",
@@ -1398,6 +1530,14 @@ function engineInstructionProfile_(treatment) {
       at_16: "16 waiting units",
       bot_send: "Send",
       bot_not: "Do not send",
+      timeline_title: "Sequence within each round",
+      timeline_intro: "Every round follows the same sequence. The steps below describe only when information and actions appear.",
+      timeline_1: "The screen displays the case label, waiting units, and associated values.",
+      timeline_2: "You choose Send to queue or Do not send.",
+      timeline_3: "The three computer customers apply the fixed rules described above.",
+      timeline_4: "The processor serves queued cases using the rule described above.",
+      timeline_5: "The round summary appears; the next round then begins.",
+      timeline_note: "Your decision applies only to the current case. A case already sent but not yet served remains in the queue.",
       inst4_title: "Information on screen and payment",
       profile_mixed: "During the decision rounds, your cases are displayed as <strong>Mixed cases</strong>. Each has a 40% chance of being Type H and a 60% chance of being Type L.",
       profile_exact: "During the decision rounds, the screen identifies your case exactly as <strong>Type H</strong> or <strong>Type L</strong>.",
@@ -1407,6 +1547,13 @@ function engineInstructionProfile_(treatment) {
       demo_inst4_balance: "You start the demonstration with <strong>{START} points</strong>. Case payoffs are added to or subtracted from this illustrative balance. After 20 rounds, two estimation questions are scored in hypothetical points.",
       inst4_payment: "Final payment equals the fixed participation payment of {FIXED} VND plus your bonus. The conversion rate is {CONV} points = 10,000 VND. The final questionnaire does not change your earnings.",
       demo_inst4_payment: "In this demonstration, the screen illustrates a {FIXED} VND fixed payment and a bonus at {CONV} points = 10,000 VND. No real payment is made.",
+      checklist_title: "Before each decision",
+      checklist_intro: "You can use the same review sequence in every round:",
+      checklist_1: "Read the displayed case label.",
+      checklist_2: "Read the number of waiting units.",
+      checklist_3: "Check the displayed value and points if served.",
+      checklist_4: "Choose one of the two actions before time expires.",
+      rule_available: "During the rounds, you may open Review key rules at the bottom of each decision screen. The timer continues while it is open.",
       quiz_title: "Comprehension check",
       quiz_intro: "You must answer every question correctly before the paid rounds begin. If an answer is incorrect, you will see what to review and may try again.",
       demo_quiz_intro: "You must answer every question correctly before the demonstration rounds begin. If an answer is incorrect, you will see what to review and may try again.",
@@ -1415,7 +1562,24 @@ function engineInstructionProfile_(treatment) {
       quiz_passed: "You answered every question correctly.",
       your_answer: "You selected",
       explanation: "Explanation",
+      start_practice: "Continue to practice",
+      practice_title: "Unpaid practice",
+      practice_intro: "This practice helps you become familiar with the decision screen. The choice and calculation here do not change your balance, bonus, or decision-round outcomes.",
+      demo_practice_intro: "This practice helps you become familiar with the screen. No response is sent anywhere and no real payment is made.",
+      practice_no_strategy: "There is no correct or incorrect action in this practice, and the screen will not evaluate whether you choose Send or Do not send. Only the payoff calculation has a correct answer.",
+      practice_case_note: "Common practice situation: Type H case, 10 waiting units.",
+      practice_action_prompt: "Step 1. Choose an action to become familiar with the decision buttons.",
+      practice_choice_made: "Selected: {CHOICE}. You may change this choice before submitting the practice task.",
+      practice_calc_prompt: "Step 2. If this Type H case were served, how many points would the case produce?",
+      practice_calc_hint: "Enter a whole number. Use the rule: case value − 5 × waiting units.",
+      practice_submit: "Check practice task",
+      practice_missing_choice: "Choose Send to queue or Do not send for the practice situation.",
+      practice_missing_calc: "Enter a whole number for the payoff calculation.",
+      practice_incorrect: "The calculation is not correct yet. Review the case value and waiting charge, then try again. Your action choice is not evaluated.",
+      practice_correct: "The calculation is correct: 120 − 5×10 = 70 points. The practice case was not added to the queue and did not change your balance.",
+      demo_practice_correct: "The calculation is correct: 120 − 5×10 = 70 points. The practice case remained in this browser and did not change the illustrative balance.",
       start_rounds: "Start round 1",
+      demo_start_rounds: "Start demonstration round 1",
       round: "Round",
       of_rounds: "of",
       current_balance: "Current balance",
@@ -1434,6 +1598,8 @@ function engineInstructionProfile_(treatment) {
       not_send: "Do not send",
       time_remaining: "Time remaining",
       timeout_default: "If time expires, the computer records Do not send.",
+      review_rules: "Review key rules",
+      rule_reference_intro: "This section only repeats rules stated in the instructions; it does not recommend an action.",
       no_waiting_cases: "None of your cases are waiting.",
       queue_label: "Your cases waiting:",
       submitting_decision: "Confirming your decision with the server...",
@@ -1602,7 +1768,7 @@ function engineInstructionProfile_(treatment) {
   }
 
   function progressHtml(step, label) {
-    var total = 7;
+    var total = 8;
     var percent = Math.round(step / total * 100);
     return '<div class="progress-wrap" aria-label="' + escapeHtml(label) + '">' +
       '<div class="progress-labels"><span>' + escapeHtml(label) + '</span><span>' +
@@ -1818,11 +1984,23 @@ function engineInstructionProfile_(treatment) {
           '</td></tr></tbody></table>'
       },
       {
+        title: t("timeline_title"),
+        html: '<p>' + escapeHtml(t("timeline_intro")) + '</p><ol class="round-timeline"><li>' +
+          escapeHtml(t("timeline_1")) + '</li><li>' + escapeHtml(t("timeline_2")) +
+          '</li><li>' + escapeHtml(t("timeline_3")) + '</li><li>' +
+          escapeHtml(t("timeline_4")) + '</li><li>' + escapeHtml(t("timeline_5")) +
+          '</li></ol><div class="notice"><p>' + escapeHtml(t("timeline_note")) + '</p></div>'
+      },
+      {
         title: t("inst4_title"),
         html: '<p>' + t(profileKey) + '</p><p>' + t("inst4_timer") + '</p><p>' +
           t(isDemo() ? "demo_inst4_balance" : "inst4_balance", { START: BOOT.start_balance }) + '</p><div class="notice notice--info"><p>' +
           t(isDemo() ? "demo_inst4_payment" : "inst4_payment", { FIXED: formatVnd(BOOT.fixed_payment_vnd), CONV: BOOT.points_per_10000_vnd }) +
-          '</p></div>'
+          '</p></div><h3>' + escapeHtml(t("checklist_title")) + '</h3><p>' +
+          escapeHtml(t("checklist_intro")) + '</p><ol><li>' + escapeHtml(t("checklist_1")) +
+          '</li><li>' + escapeHtml(t("checklist_2")) + '</li><li>' +
+          escapeHtml(t("checklist_3")) + '</li><li>' + escapeHtml(t("checklist_4")) +
+          '</li></ol><p class="small muted">' + escapeHtml(t("rule_available")) + '</p>'
       }
     ];
   }
@@ -1907,7 +2085,7 @@ function engineInstructionProfile_(treatment) {
               t("quiz_incorrect", { N: response.incorrect_questions.length }));
             return;
           }
-          session.current_trial = response.next_trial;
+          session.current_trial = null;
           session.quiz_answers = {};
           renderQuizPassed();
         }).catch(function (error) {
@@ -1919,8 +2097,101 @@ function engineInstructionProfile_(treatment) {
   function renderQuizPassed() {
     show(progressHtml(3, t("progress_quiz")) + '<h1>' + escapeHtml(t("quiz_title")) +
       '</h1><div class="notice notice--success"><p>' + escapeHtml(t("quiz_passed")) +
+      '</p></div><div class="action-row"><button class="button button--wide" id="start-practice">' +
+      escapeHtml(t("start_practice")) + '</button></div>');
+    document.getElementById("start-practice").onclick = function () {
+      session.practice_choice = "";
+      renderPractice();
+    };
+  }
+
+  function renderPractice(message, previousCalculation) {
+    session.decision_active = false;
+    updateMeta();
+    var selected = session.practice_choice;
+    var selectedText = selected ? t("practice_choice_made", {
+      CHOICE: selected === "send" ? t("send") : t("not_send")
+    }) : "";
+    var calculationValue = previousCalculation === undefined ||
+      previousCalculation === null ? "" : previousCalculation;
+    show(progressHtml(4, t("progress_practice")) + '<h1>' +
+      escapeHtml(t("practice_title")) + '</h1><p class="lead">' +
+      escapeHtml(t(isDemo() ? "demo_practice_intro" : "practice_intro")) +
+      '</p><div class="notice notice--info"><p>' + escapeHtml(t("practice_no_strategy")) +
+      '</p></div>' + (message ? errorNotice(message) : '') +
+      '<section class="practice-surface" aria-labelledby="practice-case-title"><span class="case-tag">' +
+      escapeHtml(t("type_h")) + '</span><h2 id="practice-case-title">' +
+      escapeHtml(t("practice_case_note")) + '</h2><div class="decision-math"><div><span>' +
+      escapeHtml(t("waiting_units")) + '</span><strong>10</strong></div><div><span>' +
+      escapeHtml(t("waiting_charge")) + '</span><strong>50</strong></div><div><span>' +
+      escapeHtml(t("displayed_value")) + '</span><strong>120</strong></div><div><span>' +
+      escapeHtml(t("net_if_served")) + '</span><strong>?</strong></div></div><form id="practice-form">' +
+      '<fieldset><legend>' + escapeHtml(t("practice_action_prompt")) + '</legend><div class="decision-actions">' +
+      '<button type="button" class="button practice-action' + (selected === "send" ? ' practice-action--selected' : '') +
+      '" id="practice-send" aria-pressed="' + (selected === "send") + '">' +
+      escapeHtml(t("send")) + '</button><button type="button" class="button button--secondary practice-action' +
+      (selected === "not_send" ? ' practice-action--selected' : '') +
+      '" id="practice-not" aria-pressed="' + (selected === "not_send") + '">' +
+      escapeHtml(t("not_send")) + '</button></div><p class="small muted" id="practice-choice-status">' +
+      escapeHtml(selectedText) + '</p></fieldset><label class="field-label" for="practice-calculation">' +
+      escapeHtml(t("practice_calc_prompt")) + '</label><input id="practice-calculation" type="number" ' +
+      'min="-500" max="500" step="1" inputmode="numeric" value="' + escapeHtml(calculationValue) +
+      '" required><p class="small muted">' + escapeHtml(t("practice_calc_hint")) +
+      '</p><div class="action-row"><button class="button button--wide" type="submit">' +
+      escapeHtml(t("practice_submit")) + '</button></div></form></section>');
+
+    function selectPracticeChoice(choice) {
+      session.practice_choice = choice;
+      var sendButton = document.getElementById("practice-send");
+      var notButton = document.getElementById("practice-not");
+      sendButton.classList.toggle("practice-action--selected", choice === "send");
+      notButton.classList.toggle("practice-action--selected", choice === "not_send");
+      sendButton.setAttribute("aria-pressed", String(choice === "send"));
+      notButton.setAttribute("aria-pressed", String(choice === "not_send"));
+      document.getElementById("practice-choice-status").textContent =
+        t("practice_choice_made", { CHOICE: choice === "send" ? t("send") : t("not_send") });
+    }
+    document.getElementById("practice-send").onclick = function () {
+      selectPracticeChoice("send");
+    };
+    document.getElementById("practice-not").onclick = function () {
+      selectPracticeChoice("not_send");
+    };
+    document.getElementById("practice-form").onsubmit = function (event) {
+      event.preventDefault();
+      var rawCalculation = document.getElementById("practice-calculation").value.trim();
+      if (!session.practice_choice) {
+        renderPractice(t("practice_missing_choice"), rawCalculation);
+        return;
+      }
+      var calculation = Number(rawCalculation);
+      if (rawCalculation === "" || !Number.isInteger(calculation)) {
+        renderPractice(t("practice_missing_calc"), rawCalculation);
+        return;
+      }
+      loading();
+      serverCall("completePractice", authPayload({
+        practice_choice: session.practice_choice,
+        calculation_answer: calculation
+      })).then(function (response) {
+        if (!response.passed) {
+          renderPractice(t("practice_incorrect"), calculation);
+          return;
+        }
+        session.current_trial = response.next_trial;
+        renderPracticePassed();
+      }).catch(function (error) {
+        renderPractice(error.message || t("network_error"), calculation);
+      });
+    };
+  }
+
+  function renderPracticePassed() {
+    show(progressHtml(4, t("progress_practice")) + '<h1>' + escapeHtml(t("practice_title")) +
+      '</h1><div class="notice notice--success"><p>' +
+      escapeHtml(t(isDemo() ? "demo_practice_correct" : "practice_correct")) +
       '</p></div><div class="action-row"><button class="button button--wide" id="start-rounds">' +
-      escapeHtml(t("start_rounds")) + '</button></div>');
+      escapeHtml(t(isDemo() ? "demo_start_rounds" : "start_rounds")) + '</button></div>');
     document.getElementById("start-rounds").onclick = renderDecision;
   }
 
@@ -1947,6 +2218,28 @@ function engineInstructionProfile_(treatment) {
     session.timer_id = null;
   }
 
+  function ruleReferenceHtml() {
+    return '<details class="rule-reference"><summary>' + escapeHtml(t("review_rules")) +
+      '</summary><div class="rule-reference__body"><p class="small">' +
+      escapeHtml(t("rule_reference_intro")) + '</p><table class="rule-table"><thead><tr><th>' +
+      escapeHtml(t("case_label")) + '</th><th>' + escapeHtml(t("value_if_served")) +
+      '</th></tr></thead><tbody><tr><td>' + escapeHtml(t("type_h")) +
+      '</td><td class="numeric">120</td></tr><tr><td>' + escapeHtml(t("type_l")) +
+      '</td><td class="numeric">30</td></tr><tr><td>' + escapeHtml(t("type_mixed")) +
+      '</td><td class="numeric">66</td></tr></tbody></table><div class="formula">' +
+      escapeHtml(t("payoff_formula")) + '</div><p>' + escapeHtml(t("inst2_zero")) +
+      '</p><p>' + escapeHtml(t("inst3_processor")) + '</p><h3>' +
+      escapeHtml(t("inst3_bots")) + '</h3><table class="rule-table"><thead><tr><th>' +
+      escapeHtml(t("label_shown")) + '</th><th>' + escapeHtml(t("at_10")) +
+      '</th><th>' + escapeHtml(t("at_16")) + '</th></tr></thead><tbody><tr><td>' +
+      escapeHtml(t("type_h")) + '</td><td>' + escapeHtml(t("bot_send")) + '</td><td>' +
+      escapeHtml(t("bot_send")) + '</td></tr><tr><td>' + escapeHtml(t("type_l")) +
+      '</td><td>' + escapeHtml(t("bot_not")) + '</td><td>' + escapeHtml(t("bot_not")) +
+      '</td></tr><tr><td>' + escapeHtml(t("type_mixed")) + '</td><td>' +
+      escapeHtml(t("bot_send")) + '</td><td>' + escapeHtml(t("bot_not")) +
+      '</td></tr></tbody></table></div></details>';
+  }
+
   function renderDecision() {
     var trial = session.current_trial;
     if (!trial) {
@@ -1963,7 +2256,7 @@ function engineInstructionProfile_(treatment) {
     var caseText = trial.label === "H" ? t("h_case_text") :
       (trial.label === "L" ? t("l_case_text") : t("mixed_case_text"));
     var netTitle = trial.label === "mixed" ? t("expected_net_if_served") : t("net_if_served");
-    show(progressHtml(4, t("progress_rounds")) +
+    show(progressHtml(5, t("progress_rounds")) +
       '<div class="status-grid"><div class="status-item"><span>' + escapeHtml(t("round")) +
       '</span><strong>' + trial.round + ' ' + escapeHtml(t("of_rounds")) + ' ' + BOOT.num_rounds +
       '</strong></div><div class="status-item"><span>' + escapeHtml(t("current_balance")) +
@@ -1977,7 +2270,7 @@ function engineInstructionProfile_(treatment) {
       '</span><strong>' + trial.waiting_charge + '</strong></div><div><span>' +
       escapeHtml(t("displayed_value")) + '</span><strong>' + trial.displayed_value + '</strong></div><div><span>' +
       escapeHtml(netTitle) + '</span><strong>' + trial.displayed_net_if_served + '</strong></div></div>' +
-      queueVisual(trial.own_cases_waiting) + '<h2>' + escapeHtml(t("choose_action")) + '</h2>' +
+      queueVisual(trial.own_cases_waiting) + ruleReferenceHtml() + '<h2>' + escapeHtml(t("choose_action")) + '</h2>' +
       '<div id="decision-error"></div><div class="decision-actions"><button class="button" id="send-button">' +
       escapeHtml(t("send")) + '</button><button class="button button--secondary" id="not-button">' +
       escapeHtml(t("not_send")) + '</button></div><div class="timer-line"><span>' +
@@ -2041,7 +2334,7 @@ function engineInstructionProfile_(treatment) {
     if (session.summary_timer_id) window.clearInterval(session.summary_timer_id);
     updateMeta(t("round") + " " + receipt.round);
     var sent = receipt.decision === "send" ? 1 : 0;
-    var html = progressHtml(4, t("progress_rounds")) + '<h1>' +
+    var html = progressHtml(5, t("progress_rounds")) + '<h1>' +
       escapeHtml(t("round_summary", { ROUND: receipt.round })) + '</h1>' +
       (receipt.timed_out ? '<div class="notice notice--warning"><p>' + escapeHtml(t("timed_out_note")) + '</p></div>' : '') +
       '<div class="result-grid"><div>' + escapeHtml(t("sent_this_round")) + '</div><div class="value">' + sent +
@@ -2081,7 +2374,7 @@ function engineInstructionProfile_(treatment) {
     var previousServed = previousValues && Number.isInteger(previousValues.belief_total_served) ? previousValues.belief_total_served : "";
     session.decision_active = false;
     updateMeta();
-    show(progressHtml(5, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_beliefs_title" : "beliefs_title")) +
+    show(progressHtml(6, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_beliefs_title" : "beliefs_title")) +
       '</h1><p class="lead">' + escapeHtml(t(isDemo() ? "demo_beliefs_intro" : "beliefs_intro", { MAX: BOOT.belief_max_points })) + '</p>' +
       (errorMessage ? errorNotice(errorMessage) : '') + '<form id="belief-form"><label class="field-label" for="belief-h">' +
       escapeHtml(t("belief_h")) + '</label><input id="belief-h" type="number" min="0" max="20" step="1" value="' +
@@ -2136,7 +2429,7 @@ function engineInstructionProfile_(treatment) {
   }
 
   function renderResults() {
-    show(progressHtml(5, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_results_title" : "results_title")) +
+    show(progressHtml(6, t("progress_beliefs")) + '<h1>' + escapeHtml(t(isDemo() ? "demo_results_title" : "results_title")) +
       '</h1>' + resultsHtml(session.results) + '<div class="notice"><p>' +
       escapeHtml(t(isDemo() ? "demo_negative_floor" : "negative_floor")) + '</p></div><div class="action-row"><button class="button button--wide" id="to-survey">' +
       escapeHtml(t("to_survey")) + '</button></div>');
@@ -2162,7 +2455,7 @@ function engineInstructionProfile_(treatment) {
   }
 
   function renderQuestionnaire(errorMessage) {
-    show(progressHtml(6, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
+    show(progressHtml(7, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
       '</h1><p class="lead">' + escapeHtml(t(isDemo() ? "demo_survey_intro" : "survey_intro")) + '</p>' +
       (errorMessage ? errorNotice(errorMessage) : '') + '<form id="survey-form">' +
       '<fieldset class="question"><legend>' + escapeHtml(t("label_difficulty")) + '</legend><p class="small muted">' +
@@ -2241,7 +2534,7 @@ function engineInstructionProfile_(treatment) {
   }
 
   function renderQuestionnaireRetry(payload, errorMessage) {
-    show(progressHtml(6, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
+    show(progressHtml(7, t("progress_survey")) + '<h1>' + escapeHtml(t("survey_title")) +
       '</h1>' + errorNotice(errorMessage) + '<p class="lead">' + escapeHtml(t("final_retry_body")) +
       '</p><div class="action-row"><button class="button button--wide" id="retry-final">' +
       escapeHtml(t("retry")) + '</button></div>');
@@ -2260,7 +2553,7 @@ function engineInstructionProfile_(treatment) {
       clearActiveSession();
     }
     var results = completion.results || {};
-    show(progressHtml(7, t("progress_done")) + '<h1>' + escapeHtml(t("debrief_title")) +
+    show(progressHtml(8, t("progress_done")) + '<h1>' + escapeHtml(t("debrief_title")) +
       '</h1><div class="notice notice--success"><p><strong>' + escapeHtml(t(isDemo() ? "demo_confirmed" : "confirmed")) +
       '</strong></p></div><p>' + escapeHtml(t(isDemo() ? "demo_completion_label" : "completion_label")) + ':</p><div class="completion-code" id="completion-code">' +
       escapeHtml(completion.completion_code) + '</div><p class="center">' + escapeHtml(t(isDemo() ? "demo_keep_code" : "keep_code")) +
@@ -2334,6 +2627,9 @@ function engineInstructionProfile_(treatment) {
     if (response.status === "instructions") {
       session.instruction_page = 0;
       renderInstructions();
+    } else if (response.status === "practice") {
+      session.practice_choice = "";
+      renderPractice();
     } else if (response.status === "rounds") {
       session.current_trial = response.next_trial;
       renderDecision();
