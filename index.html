@@ -77,11 +77,13 @@
     width: min(900px, calc(100% - 32px));
     min-height: 82px;
     margin: 0 auto;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
     gap: 24px;
   }
+
+  .study-brand { min-width: 0; }
 
   .study-kicker {
     margin: 0 0 2px;
@@ -103,6 +105,81 @@
     text-align: right;
     font-size: 13px;
   }
+
+  .study-header__actions {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  .instruction-review-link {
+    min-height: 34px;
+    padding: 4px 0;
+    color: var(--accent);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-weight: 750;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
+  .instruction-review-link:hover { color: var(--accent-hover); }
+
+  .instruction-dialog {
+    width: min(760px, calc(100% - 32px));
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 0;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    box-shadow: 0 18px 48px rgba(24, 33, 38, 0.2);
+  }
+  .instruction-dialog::backdrop { background: rgba(24, 33, 38, 0.48); }
+  .instruction-dialog__scroll {
+    max-height: calc(100vh - 34px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .instruction-dialog__header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .instruction-dialog__header h2 { margin: 0; font-size: 21px; }
+  .instruction-dialog__close {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 28px;
+    line-height: 1;
+  }
+  .instruction-dialog__close:hover { background: #f1f4f3; }
+  .instruction-dialog__body { padding: 20px 24px 28px; }
+  .instruction-dialog__notice { margin-top: 0; }
+  .instruction-reference-section {
+    padding: 24px 0 10px;
+    border-top: 1px solid var(--line);
+  }
+  .instruction-reference-section:first-of-type { border-top: 0; }
+  .instruction-reference-section h3 { margin-top: 4px; font-size: 19px; }
 
   .app-shell {
     width: min(820px, calc(100% - 32px));
@@ -513,9 +590,15 @@
   }
 
   @media (max-width: 680px) {
-    .study-header__inner { min-height: 72px; }
+    .study-header__inner { min-height: 72px; gap: 12px; }
+    .study-kicker { display: none; }
     .study-meta { display: none; }
-    .study-title { font-size: 17px; }
+    .study-title { font-size: 15px; }
+    .instruction-review-link { font-size: 13px; }
+    .instruction-dialog { width: calc(100% - 16px); max-height: calc(100vh - 16px); }
+    .instruction-dialog__scroll { max-height: calc(100vh - 18px); }
+    .instruction-dialog__header { padding: 10px 12px; }
+    .instruction-dialog__body { padding: 16px 14px 22px; }
     .app-shell { width: 100%; min-height: calc(100vh - 72px); margin: 0; padding: 20px 16px 28px; border-width: 0; border-radius: 0; box-shadow: none; }
     h1 { font-size: 24px; }
     .language-grid, .decision-actions, .decision-math { grid-template-columns: 1fr; }
@@ -541,13 +624,21 @@
   <div id="pilot-banner" class="pilot-banner" hidden></div>
   <header class="study-header">
     <div class="study-header__inner">
-      <div>
+      <div class="study-brand">
         <p class="study-kicker" id="study-kicker">Nghiên cứu ra quyết định</p>
         <p class="study-title" id="study-title">Quyết định trong hệ thống xử lý hồ sơ</p>
       </div>
-      <div class="study-meta" id="study-meta"></div>
+      <div class="study-header__actions">
+        <button class="instruction-review-link" id="instruction-review-button" type="button" hidden>
+          Xem lại hướng dẫn
+        </button>
+        <div class="study-meta" id="study-meta"></div>
+      </div>
     </div>
   </header>
+  <dialog class="instruction-dialog" id="instruction-dialog" aria-labelledby="instruction-dialog-title">
+    <div class="instruction-dialog__scroll" id="instruction-dialog-content"></div>
+  </dialog>
   <main id="app" class="app-shell" tabindex="-1" aria-live="polite"></main>
   <footer class="study-footer">
     <span id="footer-version"></span>
@@ -556,7 +647,7 @@
     <div class="fatal-message">This experiment requires JavaScript.</div>
   </noscript>
   <script>
-    window.QUEUE_BOOT = {"study_id":"queue_individual_market_demo","study_version":"1.1.0-public-demo","protocol_version":"2026-08-11.2","mode":"PILOT","demo_mode":true,"default_language":"vi","researcher_name":"","researcher_email":"","ethics_reference":"","require_invite":false,"fixed_payment_vnd":50000,"points_per_10000_vnd":100,"start_balance":300,"num_rounds":20,"num_customers":4,"num_computer_customers":3,"h_value":120,"l_value":30,"mixed_h_probability":0.4,"mixed_expected_value":66,"waiting_charge_per_unit":5,"wait_units_low":10,"wait_units_high":16,"decision_timeout_seconds":60,"summary_timeout_seconds":45,"belief_max_points":10,"max_total_served":80};
+    window.QUEUE_BOOT = {"study_id":"queue_individual_market_demo","study_version":"1.1.1-public-demo","protocol_version":"2026-08-12.1","mode":"PILOT","demo_mode":true,"default_language":"vi","researcher_name":"","researcher_email":"","ethics_reference":"","require_invite":false,"fixed_payment_vnd":50000,"points_per_10000_vnd":100,"start_balance":300,"num_rounds":20,"num_customers":4,"num_computer_customers":3,"h_value":120,"l_value":30,"mixed_h_probability":0.4,"mixed_expected_value":66,"waiting_charge_per_unit":5,"wait_units_low":10,"wait_units_high":16,"decision_timeout_seconds":60,"summary_timeout_seconds":45,"belief_max_points":10,"max_total_served":80};
   </script>
   <script>window.DEMO_CONFIG={"FIXED_PAYMENT_VND":50000,"POINTS_PER_10000_VND":100,"START_BALANCE":300,"NUM_ROUNDS":20,"NUM_CUSTOMERS":4,"NUM_COMPUTER_CUSTOMERS":3,"NUM_H_CASES":8,"NUM_LOW_WAIT_ROUNDS":10,"H_VALUE":120,"L_VALUE":30,"MIXED_H_PROBABILITY":0.4,"MIXED_EXPECTED_VALUE":66,"WAITING_CHARGE_PER_UNIT":5,"WAIT_UNITS_LOW":10,"WAIT_UNITS_HIGH":16,"FRESH_BACKLOG_THRESHOLD":2,"FRESH_CAPACITY":3,"BUSY_CAPACITY":2,"BELIEF_MAX_POINTS":10,"MAX_TOTAL_SERVED":80,"TREATMENTS":["mixed","fine","state_dependent"]};</script>
 <script>/**
@@ -1171,6 +1262,7 @@ function engineInstructionProfile_(treatment) {
   var STORAGE_KEY = "queue-study-session::" + (BOOT.study_version || "v1");
   var COMPLETION_KEY = "queue-study-completion::" + (BOOT.study_version || "v1");
   var clientStartedAt = new Date().toISOString();
+  var instructionReferencePreviousFocus = null;
   var session = {
     language: BOOT.default_language || "vi",
     session_id: "",
@@ -1245,6 +1337,13 @@ function engineInstructionProfile_(treatment) {
       demo_consent_check: "Tôi muốn thử trải nghiệm của người tham gia.",
       demo_consent_button: "Mở bản trình diễn",
       instruction_of: "Trang {CURRENT} / {TOTAL}",
+      review_full_instructions: "Xem lại hướng dẫn",
+      review_full_instructions_aria: "Mở lại toàn bộ hướng dẫn thí nghiệm",
+      instruction_reference_title: "Hướng dẫn thí nghiệm",
+      instruction_reference_intro: "Đây là bản sao của các hướng dẫn đã được phân cho bạn. Nội dung chỉ nhắc lại quy tắc của thí nghiệm và không khuyến nghị phương án.",
+      instruction_reference_timer: "Nếu bạn mở hướng dẫn trong một vòng quyết định, đồng hồ của vòng đó vẫn tiếp tục chạy. Đóng cửa sổ này để trở lại đúng màn hình trước đó.",
+      instruction_reference_section: "Phần {CURRENT} / {TOTAL}",
+      close_instructions: "Đóng hướng dẫn",
       inst1_title: "Vai trò và cấu trúc thị trường",
       inst1_html: "<p>Bạn là <strong>khách hàng duy nhất do người tham gia điều khiển</strong> trong một thị trường gồm 4 khách hàng. Ba khách hàng còn lại do máy tính điều khiển. Không có người tham gia nào khác chờ bạn.</p><p>Thị trường có <strong>{N} vòng</strong>. Trong mỗi vòng, mỗi khách hàng nhận một hồ sơ có thể gửi vào hàng chờ. Bạn chỉ quyết định đối với hồ sơ của mình.</p><p>Nếu bạn chọn <strong>Gửi vào hàng chờ</strong>, hồ sơ vào hàng chờ và không thể rút lại. Nếu bạn chọn <strong>Không gửi</strong>, điểm từ hồ sơ đó bằng 0.</p>",
       inst2_title: "Loại hồ sơ, chi phí chờ và điểm",
@@ -1503,6 +1602,13 @@ function engineInstructionProfile_(treatment) {
       demo_consent_check: "I want to test the participant experience.",
       demo_consent_button: "Open demonstration",
       instruction_of: "Page {CURRENT} of {TOTAL}",
+      review_full_instructions: "Review instructions",
+      review_full_instructions_aria: "Reopen the complete experiment instructions",
+      instruction_reference_title: "Experiment instructions",
+      instruction_reference_intro: "This is a copy of the instructions assigned to you. It only repeats the experiment rules and does not recommend an action.",
+      instruction_reference_timer: "If you open the instructions during a decision round, that round’s timer continues to run. Close this window to return to the same screen.",
+      instruction_reference_section: "Section {CURRENT} of {TOTAL}",
+      close_instructions: "Close instructions",
       inst1_title: "Your role and the market",
       inst1_html: "<p>You are the <strong>only customer controlled by a participant</strong> in a market containing 4 customers. The other three customers are controlled by the computer. No other participant is waiting for you.</p><p>The market lasts <strong>{N} rounds</strong>. In every round, each customer receives one possible case. You decide only for your own case.</p><p>If you choose <strong>Send to queue</strong>, the case enters the queue and cannot be removed. If you choose <strong>Do not send</strong>, that case pays 0 points.</p>",
       inst2_title: "Case types, waiting charges, and points",
@@ -1810,6 +1916,15 @@ function engineInstructionProfile_(treatment) {
     if (session.participant_code) parts.push(session.participant_code);
     if (extra) parts.push(extra);
     document.getElementById("study-meta").textContent = parts.join(" | ");
+    updateInstructionReferenceLink();
+  }
+
+  function updateInstructionReferenceLink() {
+    var button = document.getElementById("instruction-review-button");
+    if (!button) return;
+    button.hidden = !session.instruction_profile;
+    button.textContent = t("review_full_instructions");
+    button.setAttribute("aria-label", t("review_full_instructions_aria"));
   }
 
   function queryValue(keys) {
@@ -1842,6 +1957,7 @@ function engineInstructionProfile_(treatment) {
       session_id: session.session_id,
       session_token: session.session_token,
       participant_code: session.participant_code,
+      instruction_profile: session.instruction_profile,
       language: session.language,
       started_at: clientStartedAt
     }));
@@ -2003,6 +2119,77 @@ function engineInstructionProfile_(treatment) {
           '</li></ol><p class="small muted">' + escapeHtml(t("rule_available")) + '</p>'
       }
     ];
+  }
+
+  function instructionReferenceHtml() {
+    var pages = instructionPages();
+    var sections = pages.map(function (page, index) {
+      return '<section class="instruction-reference-section"><p class="small muted">' +
+        escapeHtml(t("instruction_reference_section", {
+          CURRENT: index + 1,
+          TOTAL: pages.length
+        })) + '</p><h3>' + escapeHtml(page.title) + '</h3>' + page.html + '</section>';
+    }).join("");
+    return '<div class="instruction-dialog__header"><h2 id="instruction-dialog-title">' +
+      escapeHtml(t("instruction_reference_title")) + '</h2><button type="button" ' +
+      'class="instruction-dialog__close" id="instruction-dialog-close" aria-label="' +
+      escapeHtml(t("close_instructions")) + '" title="' + escapeHtml(t("close_instructions")) +
+      '">&times;</button></div><div class="instruction-dialog__body"><div class="notice notice--info instruction-dialog__notice"><p>' +
+      escapeHtml(t("instruction_reference_intro")) + '</p><p>' +
+      escapeHtml(t("instruction_reference_timer")) + '</p></div>' + sections + '</div>';
+  }
+
+  function closeInstructionReference() {
+    var dialog = document.getElementById("instruction-dialog");
+    if (!dialog) return;
+    if (typeof dialog.close === "function" && dialog.open) dialog.close();
+    else dialog.removeAttribute("open");
+    if (instructionReferencePreviousFocus &&
+        typeof instructionReferencePreviousFocus.focus === "function") {
+      instructionReferencePreviousFocus.focus();
+    }
+    instructionReferencePreviousFocus = null;
+  }
+
+  function openInstructionReference() {
+    if (!session.instruction_profile) return;
+    var dialog = document.getElementById("instruction-dialog");
+    var content = document.getElementById("instruction-dialog-content");
+    instructionReferencePreviousFocus = document.activeElement;
+    content.innerHTML = instructionReferenceHtml();
+    document.getElementById("instruction-dialog-close").onclick = closeInstructionReference;
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    document.getElementById("instruction-dialog-close").focus();
+  }
+
+  function bindInstructionReference() {
+    var button = document.getElementById("instruction-review-button");
+    var dialog = document.getElementById("instruction-dialog");
+    button.onclick = openInstructionReference;
+    dialog.addEventListener("click", function (event) {
+      if (event.target !== dialog) return;
+      var bounds = dialog.getBoundingClientRect();
+      var outside = event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom;
+      if (outside) closeInstructionReference();
+    });
+    dialog.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      closeInstructionReference();
+    });
+    dialog.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeInstructionReference();
+    });
+    dialog.addEventListener("close", function () {
+      if (instructionReferencePreviousFocus &&
+          typeof instructionReferencePreviousFocus.focus === "function") {
+        instructionReferencePreviousFocus.focus();
+      }
+      instructionReferencePreviousFocus = null;
+    });
   }
 
   function renderInstructions() {
@@ -2544,11 +2731,14 @@ function engineInstructionProfile_(treatment) {
   }
 
   function renderDebrief(completion, newlyCompleted) {
+    session.instruction_profile = completion.instruction_profile ||
+      session.instruction_profile;
     setLanguage(completion.language || session.language);
     session.participant_code = completion.participant_code || session.participant_code;
     session.results = completion.results;
     updateMeta();
     if (newlyCompleted) {
+      completion.instruction_profile = session.instruction_profile;
       sessionStorage.setItem(COMPLETION_KEY, JSON.stringify(completion));
       clearActiveSession();
     }
@@ -2592,6 +2782,7 @@ function engineInstructionProfile_(treatment) {
   }
 
   function renderRecovery(stored, errorMessage) {
+    session.instruction_profile = stored.instruction_profile || "";
     setLanguage(stored.language || session.language);
     show('<h1>' + escapeHtml(t(isDemo() ? "demo_recovery_title" : "recovery_title")) + '</h1><p class="lead">' +
       escapeHtml(t(isDemo() ? "demo_recovery_body" : "recovery_body", { CODE: stored.participant_code || "" })) + '</p>' +
@@ -2601,6 +2792,7 @@ function engineInstructionProfile_(treatment) {
       '</button></div>');
     document.getElementById("clear-session").onclick = function () {
       localStorage.removeItem(STORAGE_KEY);
+      session.instruction_profile = "";
       renderLanguage();
     };
     document.getElementById("resume-session").onclick = function () {
@@ -2661,6 +2853,7 @@ function engineInstructionProfile_(treatment) {
   });
 
   function start() {
+    bindInstructionReference();
     setLanguage(session.language);
     var completion = sessionStorage.getItem(COMPLETION_KEY);
     if (completion) {
